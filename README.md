@@ -23,7 +23,9 @@
 - **UI Library**: [React Native Paper](https://callstack.github.io/react-native-paper/)
 - **Navigation**: [React Navigation](https://reactnavigation.org/)
 - **Backend & Auth**: [Supabase](https://supabase.com/)
-- **Maps**: [React Native Maps](https://github.com/react-native-maps/react-native-maps)
+- **Maps**:
+  - Mobile: [React Native Maps](https://github.com/react-native-maps/react-native-maps) (using OpenStreetMap tiles)
+  - Web: [React Leaflet](https://react-leaflet.js.org/) (OpenStreetMap)
 - **AI Integration**: [OpenRouter API](https://openrouter.ai/)
 
 ## Getting Started 🏁
