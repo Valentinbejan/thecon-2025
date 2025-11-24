@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { MapContainer, TileLayer, Marker, Popup, Tooltip } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap } from 'react-leaflet';
 import { Venue } from '../types';
 import L from 'leaflet';
 
@@ -25,9 +25,25 @@ L.Marker.prototype.options.icon = DefaultIcon;
 interface MapComponentProps {
   venues: Venue[];
   onCalloutPress: (venue: Venue) => void;
+  focusedVenue?: Venue | null;
 }
 
-export default function MapComponent({ venues, onCalloutPress }: MapComponentProps) {
+// Component to handle map movement
+function MapController({ focusedVenue }: { focusedVenue?: Venue | null }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (focusedVenue) {
+      map.flyTo([focusedVenue.coordinates.lat, focusedVenue.coordinates.long], 15, {
+        duration: 1.5
+      });
+    }
+  }, [focusedVenue, map]);
+
+  return null;
+}
+
+export default function MapComponent({ venues, onCalloutPress, focusedVenue }: MapComponentProps) {
   useEffect(() => {
     // Inject Leaflet CSS
     const link = document.createElement('link');
@@ -48,6 +64,7 @@ export default function MapComponent({ venues, onCalloutPress }: MapComponentPro
           zoom={7} 
           style={{ height: '100%', width: '100%' }}
         >
+          <MapController focusedVenue={focusedVenue} />
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
