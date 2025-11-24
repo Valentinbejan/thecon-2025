@@ -1,11 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native';
 import { Text, Card, Title, Paragraph, SegmentedButtons, FAB } from 'react-native-paper';
-import MapView, { Marker, UrlTile, Callout } from 'react-native-maps';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { ExploreStackParamList } from '../navigation/types';
-import venuesData from '../data/venues.json';
-import { Venue } from '../types';
+import MapComponent from '../components/MapComponent';
 
 type Props = NativeStackScreenProps<ExploreStackParamList, 'ExploreMain'>;
 
@@ -38,37 +34,10 @@ export default function ExploreScreen({ navigation }: Props) {
       </View>
 
       {viewMode === 'map' ? (
-        <MapView
-          style={styles.map}
-          initialRegion={{
-            latitude: 40.730610,
-            longitude: -73.935242,
-            latitudeDelta: 0.1,
-            longitudeDelta: 0.1,
-          }}
-        >
-          <UrlTile
-            urlTemplate="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            maximumZ={19}
-            flipY={false}
-          />
-          {venues.map((venue) => (
-            <Marker
-              key={venue.id}
-              coordinate={{ latitude: venue.latitude, longitude: venue.longitude }}
-              title={venue.name}
-              description={venue.short_description}
-              onCalloutPress={() => navigation.navigate('Details', { venue })}
-            >
-              <Callout>
-                <View style={styles.callout}>
-                  <Text style={styles.calloutTitle}>{venue.name}</Text>
-                  <Text>{venue.rating} ⭐</Text>
-                </View>
-              </Callout>
-            </Marker>
-          ))}
-        </MapView>
+        <MapComponent 
+          venues={venues} 
+          onCalloutPress={(venue) => navigation.navigate('Details', { venue })} 
+        />
       ) : (
         <FlatList
           data={venues}
@@ -84,9 +53,6 @@ export default function ExploreScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   toggleContainer: { padding: 10, backgroundColor: '#fff', zIndex: 1 },
-  map: { flex: 1 },
   list: { padding: 10 },
   card: { marginBottom: 10 },
-  callout: { width: 150, padding: 5 },
-  calloutTitle: { fontWeight: 'bold', marginBottom: 5 },
 });
