@@ -1,0 +1,52 @@
+[
+  {
+    "id": "1",
+    "name": "Urban Coffee",
+    "address": "123 Innovation Dr, Tech City",
+    "latitude": 40.7128,
+    "longitude": -74.0060,
+    "image_url": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80",
+    "short_description": "A modern coffee shop with a minimalist vibe and excellent espresso.",
+    "rating": 4.8
+  },
+  {
+    "id": "2",
+    "name": "The Tech Hub Bistro",
+    "address": "456 Silicon Ave, Startup Valley",
+    "latitude": 40.7300,
+    "longitude": -73.9950,
+    "image_url": "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=800&q=80",
+    "short_description": "Great food, fast wifi, and plenty of power outlets for digital nomads.",
+    "rating": 4.5
+  },
+  {
+    "id": "3",
+    "name": "Green Leaf Garden",
+    "address": "789 Nature Ln, Eco Park",
+    "latitude": 40.7580,
+    "longitude": -73.9855,
+    "image_url": "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80",
+    "short_description": "Organic vegan food in a lush, plant-filled setting.",
+    "rating": 4.9
+  },
+  {
+    "id": "4",
+    "name": "Skyline Lounge",
+    "address": "101 Highrise Blvd, Downtown",
+    "latitude": 40.7484,
+    "longitude": -73.9857,
+    "image_url": "https://images.unsplash.com/photo-1570554520913-ce219f529a8c?auto=format&fit=crop&w=800&q=80",
+    "short_description": "Rooftop bar with breathtaking views of the city skyline.",
+    "rating": 4.7
+  },
+  {
+    "id": "5",
+    "name": "Retro Arcade Bar",
+    "address": "202 Nostalgia Way, Old Town",
+    "latitude": 40.7222,
+    "longitude": -73.9875,
+    "image_url": "https://images.unsplash.com/photo-1559333086-b0a56225a93c?auto=format&fit=crop&w=800&q=80",
+    "short_description": "Classic arcade games, craft beer, and 80s music.",
+    "rating": 4.6
+  }
+]
