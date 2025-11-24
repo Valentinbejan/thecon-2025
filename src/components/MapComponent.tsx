@@ -31,15 +31,16 @@ export default function MapComponent({ venues, onCalloutPress }: MapComponentPro
           title={venue.name}
           description={venue.short_description}
           onCalloutPress={() => onCalloutPress(venue)}
+          pinColor="red"
         >
-          <View style={styles.markerContainer}>
+          {/* <View style={styles.markerContainer}>
             <View style={styles.markerPin} />
             <View style={styles.markerLabel}>
               <Text style={styles.markerText} numberOfLines={1} ellipsizeMode="tail">
                 {venue.name}
               </Text>
             </View>
-          </View>
+          </View> */}
           <Callout>
             <View style={styles.callout}>
               <Text style={styles.calloutTitle}>{venue.name}</Text>
@@ -56,7 +57,7 @@ const styles = StyleSheet.create({
   map: { flex: 1 },
   callout: { width: 150, padding: 5 },
   calloutTitle: { fontWeight: 'bold', marginBottom: 5 },
-  markerContainer: { alignItems: 'center', width: 120, overflow: 'visible' },
+  markerContainer: { alignItems: 'center', width: 120 },
   markerPin: { width: 24, height: 24, borderRadius: 12, backgroundColor: '#E53935', borderWidth: 2, borderColor: 'white', zIndex: 2 },
   markerLabel: { 
     backgroundColor: 'rgba(255, 255, 255, 0.9)', 

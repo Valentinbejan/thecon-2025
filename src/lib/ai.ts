@@ -16,7 +16,7 @@ export const generateVibeDescription = async (shortDescription: string): Promise
         'X-Title': 'VibeScout',
       },
       body: JSON.stringify({
-        model: 'moonshotai/kimi-k2-thinking',
+        model: 'moonshotai/kimi-k2-0905',
         messages: [
           {
             role: 'system',
