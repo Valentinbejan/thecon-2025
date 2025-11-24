@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { View, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native';
 import { Text, Card, Title, Paragraph, SegmentedButtons, FAB } from 'react-native-paper';
 import MapComponent from '../components/MapComponent';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { ExploreStackParamList } from '../navigation/types';
+import venuesData from '../data/venues.json';
+import { Venue } from '../types';
 
 type Props = NativeStackScreenProps<ExploreStackParamList, 'ExploreMain'>;
 
