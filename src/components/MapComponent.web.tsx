@@ -44,6 +44,14 @@ function MapController({ focusedVenue }: { focusedVenue?: Venue | null }) {
 }
 
 export default function MapComponent({ venues, onCalloutPress, focusedVenue }: MapComponentProps) {
+  const markerRefs = React.useRef<{ [key: string]: any }>({});
+
+  useEffect(() => {
+    if (focusedVenue && focusedVenue.id && markerRefs.current[focusedVenue.id]) {
+      markerRefs.current[focusedVenue.id].openPopup();
+    }
+  }, [focusedVenue]);
+
   useEffect(() => {
     // Inject Leaflet CSS
     const link = document.createElement('link');
@@ -72,19 +80,32 @@ export default function MapComponent({ venues, onCalloutPress, focusedVenue }: M
           {venues.map((venue, index) => (
             <Marker 
               key={venue.id || index.toString()} 
+              ref={(ref) => {
+                if (venue.id && ref) markerRefs.current[venue.id] = ref;
+              }}
               position={[venue.coordinates.lat, venue.coordinates.long]}
             >
               <Tooltip direction="bottom" offset={[0, 20]} opacity={1} permanent>
                 {venue.name}
               </Tooltip>
               <Popup>
-                <div 
-                  onClick={() => onCalloutPress(venue)}
-                  style={{ cursor: 'pointer' }}
-                >
+                <div style={{ textAlign: 'center' }}>
                   <strong>{venue.name}</strong><br />
                   {venue.rating} ⭐<br />
-                  <small>Click for details</small>
+                  <button 
+                    onClick={() => onCalloutPress(venue)}
+                    style={{
+                      marginTop: '8px',
+                      padding: '5px 10px',
+                      backgroundColor: '#6200ee',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    View Details
+                  </button>
                 </div>
               </Popup>
             </Marker>

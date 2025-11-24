@@ -11,15 +11,25 @@ interface MapComponentProps {
 
 export default function MapComponent({ venues, onCalloutPress, focusedVenue }: MapComponentProps) {
   const mapRef = useRef<MapView>(null);
+  const markerRefs = useRef<{ [key: string]: any }>({});
 
   useEffect(() => {
     if (focusedVenue && mapRef.current) {
+      // Animate map
       mapRef.current.animateToRegion({
         latitude: focusedVenue.coordinates.lat,
         longitude: focusedVenue.coordinates.long,
         latitudeDelta: 0.01,
         longitudeDelta: 0.01,
       }, 1000);
+
+      // Show callout after a short delay to allow animation to start
+      setTimeout(() => {
+        const markerId = focusedVenue.id || '';
+        if (markerRefs.current[markerId]) {
+          markerRefs.current[markerId].showCallout();
+        }
+      }, 500);
     }
   }, [focusedVenue]);
 
@@ -42,24 +52,22 @@ export default function MapComponent({ venues, onCalloutPress, focusedVenue }: M
       {venues.map((venue, index) => (
         <Marker
           key={venue.id || index.toString()}
+          ref={(ref) => {
+            if (venue.id) markerRefs.current[venue.id] = ref;
+          }}
           coordinate={{ latitude: venue.coordinates.lat, longitude: venue.coordinates.long }}
           title={venue.name}
           description={venue.short_description}
           onCalloutPress={() => onCalloutPress(venue)}
           pinColor="red"
         >
-          {/* <View style={styles.markerContainer}>
-            <View style={styles.markerPin} />
-            <View style={styles.markerLabel}>
-              <Text style={styles.markerText} numberOfLines={1} ellipsizeMode="tail">
-                {venue.name}
-              </Text>
-            </View>
-          </View> */}
-          <Callout>
+          <Callout tooltip>
             <View style={styles.callout}>
               <Text style={styles.calloutTitle}>{venue.name}</Text>
-              <Text>{venue.rating} ⭐</Text>
+              <Text numberOfLines={2} style={styles.calloutDesc}>{venue.short_description}</Text>
+              <View style={styles.calloutButton}>
+                <Text style={styles.calloutButtonText}>View Details</Text>
+              </View>
             </View>
           </Callout>
         </Marker>
@@ -70,20 +78,9 @@ export default function MapComponent({ venues, onCalloutPress, focusedVenue }: M
 
 const styles = StyleSheet.create({
   map: { flex: 1 },
-  callout: { width: 150, padding: 5 },
-  calloutTitle: { fontWeight: 'bold', marginBottom: 5 },
-  markerContainer: { alignItems: 'center', width: 120 },
-  markerPin: { width: 24, height: 24, borderRadius: 12, backgroundColor: '#E53935', borderWidth: 2, borderColor: 'white', zIndex: 2 },
-  markerLabel: { 
-    backgroundColor: 'rgba(255, 255, 255, 0.9)', 
-    paddingHorizontal: 6, 
-    paddingVertical: 3, 
-    borderRadius: 6, 
-    marginTop: -4, 
-    zIndex: 1,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    alignSelf: 'center',
-  },
-  markerText: { fontSize: 11, fontWeight: '600', color: '#333', textAlign: 'center' },
+  callout: { width: 200, padding: 10, backgroundColor: 'white', borderRadius: 8, alignItems: 'center' },
+  calloutTitle: { fontWeight: 'bold', marginBottom: 5, textAlign: 'center' },
+  calloutDesc: { fontSize: 12, marginBottom: 10, textAlign: 'center' },
+  calloutButton: { backgroundColor: '#6200ee', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 4 },
+  calloutButtonText: { color: 'white', fontSize: 12, fontWeight: 'bold' },
 });
