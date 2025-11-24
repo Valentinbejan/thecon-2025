@@ -1,32 +1,94 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { View, StyleSheet, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
 import { TextInput, Button, Text, Card, Avatar, ActivityIndicator, IconButton } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getChatResponse, ChatMessage } from '../lib/ai';
 import venuesData from '../data/locatii.json';
 import venueMetadata from '../data/venue_metadata.json';
-
-// Prepare context data once
-const allVenues = (venuesData as any[]).map((item, index) => {
-  const id = (index + 1).toString();
-  const metadata = venueMetadata.find((m) => m.id === id);
-  return { ...item, ...metadata };
-});
-const VENUE_CONTEXT = JSON.stringify(allVenues.map(v => ({
-  name: v.name,
-  city: v.city,
-  category: v.category,
-  rating: v.rating,
-  description: v.short_description,
-  features: v.features,
-  atmosphere: v.atmosphere
-})));
+import { supabase } from '../lib/supabase';
+import { UserLocation } from '../types';
+import { calculateDistance } from '../lib/distance';
 
 export default function ChatScreen() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const flatListRef = useRef<FlatList>(null);
+
+// ...
+
+  // Fetch user location
+  useFocusEffect(
+    React.useCallback(() => {
+      let isActive = true;
+
+      async function fetchUserLocation() {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user) {
+            const { data } = await supabase
+              .from('profiles')
+              .select('city, city_lat, city_long')
+              .eq('id', session.user.id)
+              .single();
+
+            if (isActive && data && data.city && data.city_lat && data.city_long) {
+              setUserLocation({
+                city: data.city,
+                lat: data.city_lat,
+                long: data.city_long,
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching user location:', error);
+        }
+      }
+
+      fetchUserLocation();
+
+      return () => {
+        isActive = false;
+      };
+    }, [])
+  );
+
+  // Prepare context data with distances
+  const prepareVenueContext = () => {
+    const allVenues = (venuesData as any[]).map((item, index) => {
+      const id = (index + 1).toString();
+      const metadata = venueMetadata.find((m) => m.id === id);
+      
+      let distanceFromUser: number | undefined;
+      if (userLocation) {
+        distanceFromUser = calculateDistance(
+          userLocation.lat,
+          userLocation.long,
+          item.coordinates.lat,
+          item.coordinates.long
+        );
+      }
+
+      return { 
+        ...item, 
+        ...metadata,
+        distanceFromUser,
+      };
+    });
+
+    return JSON.stringify(allVenues.map(v => ({
+      name: v.name,
+      city: v.city,
+      category: v.category,
+      rating: v.rating,
+      description: v.short_description,
+      features: v.features,
+      atmosphere: v.atmosphere,
+      distanceKm: v.distanceFromUser,
+    })));
+  };
 
   const handleSend = async () => {
     if (!inputText.trim()) return;
@@ -39,7 +101,14 @@ export default function ChatScreen() {
     // Scroll to bottom
     setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
 
-    const response = await getChatResponse([...messages, userMessage], VENUE_CONTEXT);
+    const venueContext = prepareVenueContext();
+    const locationContext = userLocation 
+      ? `\n\nIMPORTANT: The user is located in ${userLocation.city}. When recommending places, prioritize venues that are closer to ${userLocation.city} and mention the distance. The distanceKm field shows how far each venue is from the user in kilometers.`
+      : '\n\nNote: The user has not set their location yet. You can suggest they set it in their profile for distance-based recommendations.';
+
+    const fullContext = venueContext + locationContext;
+
+    const response = await getChatResponse([...messages, userMessage], fullContext);
     
     const aiMessage: ChatMessage = { role: 'assistant', content: response };
     setMessages(prev => [...prev, aiMessage]);
@@ -76,6 +145,16 @@ export default function ChatScreen() {
       <View style={styles.header}>
         <Title>VibeBot 🤖</Title>
         <Text style={styles.subtitle}>Ask me anything about our locations!</Text>
+        {userLocation && (
+          <View style={styles.locationBadge}>
+            <Text style={styles.locationText}>📍 Your location: {userLocation.city}</Text>
+          </View>
+        )}
+        {!userLocation && (
+          <View style={styles.noLocationBadge}>
+            <Text style={styles.noLocationText}>Set your city in Profile for personalized recommendations!</Text>
+          </View>
+        )}
       </View>
 
       <FlatList
@@ -88,7 +167,19 @@ export default function ChatScreen() {
           <View style={styles.emptyState}>
             <Avatar.Icon size={64} icon="robot-excited" style={{ backgroundColor: '#e0e0e0' }} />
             <Text style={styles.emptyText}>Hi! I'm VibeBot.</Text>
-            <Text style={styles.emptySubtext}>Ask me for recommendations like "Where can I find good coffee?" or "I need a quiet place to study."</Text>
+            <Text style={styles.emptySubtext}>
+              {userLocation 
+                ? `I see you're in ${userLocation.city}! Ask me for recommendations like "What's close to me?" or "Find a coffee shop nearby."`
+                : 'Ask me for recommendations like "Where can I find good coffee?" or "I need a quiet place to study."'}
+            </Text>
+            {userLocation && (
+              <View style={styles.suggestionChips}>
+                <Text style={styles.suggestionsTitle}>Try asking:</Text>
+                <Text style={styles.suggestionChip}>• "What's the closest café to me?"</Text>
+                <Text style={styles.suggestionChip}>• "Find restaurants within 50km"</Text>
+                <Text style={styles.suggestionChip}>• "Best rated places near {userLocation.city}"</Text>
+              </View>
+            )}
           </View>
         }
       />
@@ -135,6 +226,30 @@ const styles = StyleSheet.create({
   subtitle: {
     color: 'gray',
     fontSize: 12,
+  },
+  locationBadge: {
+    backgroundColor: '#e3f2fd',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    marginTop: 8,
+  },
+  locationText: {
+    fontSize: 12,
+    color: '#1976d2',
+    fontWeight: '500',
+  },
+  noLocationBadge: {
+    backgroundColor: '#fff3e0',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    marginTop: 8,
+  },
+  noLocationText: {
+    fontSize: 11,
+    color: '#e65100',
+    textAlign: 'center',
   },
   listContent: {
     padding: 16,
@@ -187,7 +302,7 @@ const styles = StyleSheet.create({
   emptyState: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 100,
+    marginTop: 60,
     padding: 20,
   },
   emptyText: {
@@ -199,6 +314,25 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: 'gray',
     marginTop: 8,
+    paddingHorizontal: 20,
+  },
+  suggestionChips: {
+    marginTop: 20,
+    alignItems: 'flex-start',
+    backgroundColor: '#f5f5f5',
+    padding: 16,
+    borderRadius: 12,
+    width: '100%',
+  },
+  suggestionsTitle: {
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#333',
+  },
+  suggestionChip: {
+    color: '#666',
+    marginVertical: 4,
+    fontSize: 13,
   },
   loadingContainer: {
     flexDirection: 'row',
@@ -213,7 +347,7 @@ const styles = StyleSheet.create({
   },
 });
 
-// Helper component for Title since it's not exported directly from paper sometimes
+// Helper component for Title
 function Title({ children }: { children: React.ReactNode }) {
   return <Text style={{ fontSize: 20, fontWeight: 'bold' }}>{children}</Text>;
 }

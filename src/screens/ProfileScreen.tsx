@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Alert, ScrollView, TouchableOpacity, Image } from 'react-native';
-import { Text, Button, Avatar, Title, TextInput, ActivityIndicator } from 'react-native-paper';
+import { Text, Button, Avatar, Title, TextInput, ActivityIndicator, Menu, Divider } from 'react-native-paper';
 import { supabase } from '../lib/supabase';
 import { Session } from '@supabase/supabase-js';
 import * as ImagePicker from 'expo-image-picker';
 import { decode } from 'base64-arraybuffer';
+import { ROMANIAN_CITIES, getCityByName, CityData } from '../data/cities';
 
 export default function ProfileScreen() {
   const [session, setSession] = useState<Session | null>(null);
@@ -14,6 +15,10 @@ export default function ProfileScreen() {
   const [website, setWebsite] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [city, setCity] = useState<string>('');
+  const [cityLat, setCityLat] = useState<number | null>(null);
+  const [cityLong, setCityLong] = useState<number | null>(null);
+  const [cityMenuVisible, setCityMenuVisible] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -29,7 +34,7 @@ export default function ProfileScreen() {
 
       const { data, error, status } = await supabase
         .from('profiles')
-        .select(`username, website, avatar_url, full_name`)
+        .select(`username, website, avatar_url, full_name, city, city_lat, city_long`)
         .eq('id', session.user.id)
         .single();
 
@@ -42,6 +47,9 @@ export default function ProfileScreen() {
         setWebsite(data.website || '');
         setAvatarUrl(data.avatar_url);
         setFullName(data.full_name || '');
+        setCity(data.city || '');
+        setCityLat(data.city_lat || null);
+        setCityLong(data.city_long || null);
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -51,6 +59,19 @@ export default function ProfileScreen() {
       setLoading(false);
     }
   }
+
+  const handleCitySelect = (selectedCity: CityData) => {
+    setCity(selectedCity.name);
+    setCityLat(selectedCity.lat);
+    setCityLong(selectedCity.long);
+    setCityMenuVisible(false);
+  };
+
+  const clearCity = () => {
+    setCity('');
+    setCityLat(null);
+    setCityLong(null);
+  };
 
   async function updateProfile() {
     try {
@@ -63,6 +84,9 @@ export default function ProfileScreen() {
         website,
         full_name: fullName,
         avatar_url: avatarUrl,
+        city: city || null,
+        city_lat: cityLat,
+        city_long: cityLong,
         updated_at: new Date(),
       };
 
@@ -124,7 +148,6 @@ export default function ProfileScreen() {
       const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
       setAvatarUrl(data.publicUrl);
 
-      // Automatically save the new avatar URL to the profile
       const updates = {
         id: session.user.id,
         avatar_url: data.publicUrl,
@@ -194,6 +217,64 @@ export default function ProfileScreen() {
           autoCapitalize="none"
         />
 
+        {/* City Location Section */}
+        <Divider style={styles.sectionDivider} />
+        <Text style={styles.sectionTitle}>📍 My Location</Text>
+        <Text style={styles.sectionSubtitle}>
+          Set your city to see distances to venues and get personalized recommendations
+        </Text>
+        
+        <Menu
+          visible={cityMenuVisible}
+          onDismiss={() => setCityMenuVisible(false)}
+          anchor={
+            <TouchableOpacity onPress={() => setCityMenuVisible(true)}>
+              <TextInput
+                label="City"
+                value={city}
+                style={styles.input}
+                mode="outlined"
+                editable={false}
+                right={
+                  city ? (
+                    <TextInput.Icon icon="close" onPress={clearCity} />
+                  ) : (
+                    <TextInput.Icon icon="chevron-down" onPress={() => setCityMenuVisible(true)} />
+                  )
+                }
+                placeholder="Select your city..."
+              />
+            </TouchableOpacity>
+          }
+          contentStyle={styles.menuContent}
+        >
+          <ScrollView style={styles.menuScroll}>
+            {ROMANIAN_CITIES.map((cityItem) => (
+              <Menu.Item
+                key={cityItem.name}
+                onPress={() => handleCitySelect(cityItem)}
+                title={cityItem.name}
+                leadingIcon={city === cityItem.name ? 'check' : undefined}
+              />
+            ))}
+          </ScrollView>
+        </Menu>
+
+        {city && (
+          <View style={styles.locationInfo}>
+            <Text style={styles.locationText}>
+              ✅ Location set to {city}
+            </Text>
+            {cityLat && cityLong && (
+              <Text style={styles.coordsText}>
+                Coordinates: {cityLat.toFixed(4)}, {cityLong.toFixed(4)}
+              </Text>
+            )}
+          </View>
+        )}
+
+        <Divider style={styles.sectionDivider} />
+
         <Button 
           mode="contained" 
           onPress={updateProfile} 
@@ -208,7 +289,6 @@ export default function ProfileScreen() {
           mode="outlined" 
           onPress={signOut} 
           style={[styles.button, styles.signOutButton]}
-          color="red"
         >
           Sign Out
         </Button>
@@ -230,11 +310,25 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     left: '50%',
-    marginLeft: -50, // Center horizontally relative to parent
+    marginLeft: -50,
   },
   email: { marginTop: 10, fontSize: 16, color: '#666' },
   form: { width: '100%' },
   input: { marginBottom: 15, backgroundColor: '#fff' },
   button: { marginTop: 10, paddingVertical: 6 },
   signOutButton: { marginTop: 30, borderColor: '#ff4444' },
+  sectionDivider: { marginVertical: 20 },
+  sectionTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 5 },
+  sectionSubtitle: { fontSize: 14, color: '#666', marginBottom: 15 },
+  menuContent: { maxHeight: 300, backgroundColor: '#fff' },
+  menuScroll: { maxHeight: 280 },
+  locationInfo: {
+    backgroundColor: '#e8f5e9',
+    padding: 12,
+    borderRadius: 8,
+    marginTop: -5,
+    marginBottom: 15,
+  },
+  locationText: { fontSize: 14, fontWeight: '500', color: '#2e7d32' },
+  coordsText: { fontSize: 12, color: '#666', marginTop: 4 },
 });

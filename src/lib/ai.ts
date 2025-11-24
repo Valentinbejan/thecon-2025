@@ -72,7 +72,12 @@ export const getChatResponse = async (messages: ChatMessage[], context: string):
             1. Only recommend venues from the provided data.
             2. Be concise and friendly.
             3. Use emojis! 🌟
-            4. If you don't know the answer, say so politely.`
+            4. If you don't know the answer, say so politely.
+            5. When the user has a location set (indicated by distanceKm values), ALWAYS mention how far venues are from them.
+            6. Prioritize closer venues when the user asks for recommendations, unless they specifically ask for a certain city or type.
+            7. When showing distances, format them nicely (e.g., "just 15 km away" or "about 200 km from you").
+            8. If the user asks about places "near me" or "close by", focus on venues within 50-100 km.
+            9. If the user hasn't set their location, gently remind them they can set it in their Profile for distance-based recommendations.`
           },
           ...messages
         ]
