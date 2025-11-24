@@ -15,6 +15,8 @@ export default function ExploreScreen({ navigation }: Props) {
   const [filteredVenues, setFilteredVenues] = useState<Venue[]>([]);
   const [focusedVenue, setFocusedVenue] = useState<Venue | null>(null);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [activeFilter, setActiveFilter] = useState('all'); // 'all', '4.5', '4.0'
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
 
   // Map data to add IDs since locatii.json doesn't have them
   const allVenues: Venue[] = (venuesData as any[]).map((item, index) => ({
@@ -23,18 +25,26 @@ export default function ExploreScreen({ navigation }: Props) {
   }));
 
   useEffect(() => {
+    let filtered = allVenues;
+
+    // Apply Search
     if (searchQuery) {
       const lowerQuery = searchQuery.toLowerCase();
-      const filtered = allVenues.filter(
+      filtered = filtered.filter(
         (venue) =>
           venue.name.toLowerCase().includes(lowerQuery) ||
           venue.address.toLowerCase().includes(lowerQuery)
       );
-      setFilteredVenues(filtered);
-    } else {
-      setFilteredVenues(allVenues);
     }
-  }, [searchQuery]);
+
+    // Apply Filter
+    if (activeFilter !== 'all') {
+      const minRating = parseFloat(activeFilter);
+      filtered = filtered.filter((venue) => venue.rating >= minRating);
+    }
+
+    setFilteredVenues(filtered);
+  }, [searchQuery, activeFilter]);
 
   const onChangeSearch = (query: string) => {
     setSearchQuery(query);
@@ -76,7 +86,10 @@ export default function ExploreScreen({ navigation }: Props) {
           data={filteredVenues}
           renderItem={renderItem}
           keyExtractor={(item, index) => item.id || index.toString()}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={[
+            styles.list, 
+            { paddingBottom: isFilterVisible ? 100 : 80 } // Add padding for filter bar
+          ]}
           style={{ marginTop: isHeaderVisible ? 160 : 0 }} // Push list down if header is visible
         />
       )}
@@ -160,6 +173,35 @@ export default function ExploreScreen({ navigation }: Props) {
           </Card.Content>
         </Card>
       )}
+
+      {/* List Filter Section */}
+      {viewMode === 'list' && (
+        <>
+          {isFilterVisible && (
+            <View style={styles.filterContainer}>
+              <Text style={styles.filterTitle}>Filter by Rating</Text>
+              <SegmentedButtons
+                value={activeFilter}
+                onValueChange={setActiveFilter}
+                buttons={[
+                  { value: 'all', label: 'All' },
+                  { value: '4.0', label: '4.0+ ⭐' },
+                  { value: '4.5', label: '4.5+ ⭐' },
+                ]}
+              />
+            </View>
+          )}
+
+          <FAB
+            icon={isFilterVisible ? "chevron-down" : "filter-variant"}
+            style={styles.filterFab}
+            onPress={() => setIsFilterVisible(!isFilterVisible)}
+            size="small"
+            mode="elevated"
+            label={isFilterVisible ? "Hide Filters" : "Filters"}
+          />
+        </>
+      )}
     </View>
   );
 }
@@ -235,5 +277,29 @@ const styles = StyleSheet.create({
   },
   fabExpanded: {
     top: 170, // Below the header
+  },
+  filterContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'white',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    padding: 15,
+    paddingBottom: 20,
+    elevation: 20,
+    zIndex: 100,
+  },
+  filterTitle: {
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  filterFab: {
+    position: 'absolute',
+    bottom: 20,
+    right: 10,
+    zIndex: 101,
+    backgroundColor: 'white',
   },
 });
