@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Image, ScrollView, Linking, Platform } from 'react-native';
+import { View, StyleSheet, Image, ScrollView, Linking, Platform, Share } from 'react-native';
 import { Text, Button, Title, Paragraph, ActivityIndicator, Card } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ExploreStackParamList } from '../navigation/types';
@@ -11,11 +11,6 @@ export default function DetailsScreen({ route }: Props) {
   const { venue } = route.params;
   const [vibeDescription, setVibeDescription] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  const handleReserve = () => {
-    // Replace with a real number or dynamic number if available
-    Linking.openURL('https://wa.me/1234567890');
-  };
 
   const handleVibeCheck = async () => {
     setLoading(true);
@@ -36,6 +31,27 @@ export default function DetailsScreen({ route }: Props) {
 
     if (url) {
       Linking.openURL(url);
+    }
+  };
+
+  const handleShare = async () => {
+    try {
+      const result = await Share.share({
+        message: `Check out this place: ${venue.name} at ${venue.address}. https://www.google.com/maps/search/?api=1&query=${venue.coordinates.lat},${venue.coordinates.long}`,
+      });
+      
+      // On Web, Share.share might return undefined or a different structure
+      if (result && result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          // shared
+        }
+      } else if (result && result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    } catch (error: any) {
+      alert(error.message);
     }
   };
 
@@ -86,11 +102,11 @@ export default function DetailsScreen({ route }: Props) {
           
           <Button 
             mode="outlined" 
-            onPress={handleReserve} 
-            icon="whatsapp"
+            onPress={handleShare} 
+            icon="share-variant"
             style={styles.button}
           >
-            Reserve Table
+            Share Location
           </Button>
         </View>
       </View>
