@@ -695,7 +695,7 @@ const styles = StyleSheet.create({
     top: 50,
   },
   fabExpanded: {
-    top: 170,
+    top: 190,
   },
   filterFab: {
     position: 'absolute',
