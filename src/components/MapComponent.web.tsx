@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Tooltip } from 'react-leaflet';
 import { Venue } from '../types';
 import L from 'leaflet';
 
@@ -57,6 +57,9 @@ export default function MapComponent({ venues, onCalloutPress }: MapComponentPro
               key={venue.id || index.toString()} 
               position={[venue.coordinates.lat, venue.coordinates.long]}
             >
+              <Tooltip direction="bottom" offset={[0, 20]} opacity={1} permanent>
+                {venue.name}
+              </Tooltip>
               <Popup>
                 <div 
                   onClick={() => onCalloutPress(venue)}
