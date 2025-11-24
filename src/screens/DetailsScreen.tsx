@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Image, ScrollView, Linking } from 'react-native';
+import { View, StyleSheet, Image, ScrollView, Linking, Platform } from 'react-native';
 import { Text, Button, Title, Paragraph, ActivityIndicator, Card } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ExploreStackParamList } from '../navigation/types';
@@ -22,6 +22,21 @@ export default function DetailsScreen({ route }: Props) {
     const vibe = await generateVibeDescription(venue.short_description);
     setVibeDescription(vibe);
     setLoading(false);
+  };
+
+  const handleGetDirections = () => {
+    const scheme = Platform.select({ ios: 'maps:0,0?q=', android: 'geo:0,0?q=' });
+    const lat = venue.coordinates.lat;
+    const lng = venue.coordinates.long;
+    const label = venue.name;
+    const url = Platform.select({
+      ios: `${scheme}${label}@${lat},${lng}`,
+      android: `${scheme}${lat},${lng}(${label})`
+    });
+
+    if (url) {
+      Linking.openURL(url);
+    }
   };
 
   return (
@@ -49,6 +64,15 @@ export default function DetailsScreen({ route }: Props) {
         )}
 
         <View style={styles.actions}>
+          <Button 
+            mode="contained" 
+            onPress={handleGetDirections} 
+            icon="map-marker-radius"
+            style={[styles.button, { backgroundColor: '#4CAF50' }]}
+          >
+            Get Directions
+          </Button>
+
           <Button 
             mode="contained" 
             onPress={handleVibeCheck} 
