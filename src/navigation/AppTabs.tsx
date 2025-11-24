@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { AppTabsParamList } from './types';
 import ExploreStack from './ExploreStack';
 import ProfileScreen from '../screens/ProfileScreen';
-
+import ChatScreen from '../screens/ChatScreen';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator<AppTabsParamList>();
@@ -18,6 +18,8 @@ export default function AppTabs() {
 
           if (route.name === 'Explore') {
             iconName = focused ? 'compass' : 'compass-outline';
+          } else if (route.name === 'Chat') {
+            iconName = focused ? 'robot' : 'robot-outline';
           } else if (route.name === 'Profile') {
             iconName = focused ? 'account-circle' : 'account-circle-outline';
           } else {
@@ -31,6 +33,7 @@ export default function AppTabs() {
       })}
     >
       <Tab.Screen name="Explore" component={ExploreStack} />
+      <Tab.Screen name="Chat" component={ChatScreen} options={{ title: 'Questions' }} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );

@@ -37,3 +37,52 @@ export const generateVibeDescription = async (shortDescription: string): Promise
     return shortDescription;
   }
 };
+
+export interface ChatMessage {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+}
+
+export const getChatResponse = async (messages: ChatMessage[], context: string): Promise<string> => {
+  if (!OPENROUTER_API_KEY) {
+    return "I'm sorry, I can't chat right now because my brain (API Key) is missing. 🧠❌";
+  }
+
+  try {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://vibescout.app',
+        'X-Title': 'VibeScout',
+      },
+      body: JSON.stringify({
+        model: 'moonshotai/kimi-k2-0905',
+        messages: [
+          {
+            role: 'system',
+            content: `You are VibeBot, a helpful and enthusiastic assistant for the VibeScout app. 
+            You help users find the perfect place to hang out based on their preferences.
+            
+            Here is the data about available venues:
+            ${context}
+            
+            Rules:
+            1. Only recommend venues from the provided data.
+            2. Be concise and friendly.
+            3. Use emojis! 🌟
+            4. If you don't know the answer, say so politely.`
+          },
+          ...messages
+        ]
+      })
+    });
+
+    const data = await response.json();
+    return data.choices[0]?.message?.content || "I'm having trouble thinking right now. 🤔";
+  } catch (error) {
+    console.error('Error getting chat response:', error);
+    return "Oops! Something went wrong. Please try again later. 😅";
+  }
+};
