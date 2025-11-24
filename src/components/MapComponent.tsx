@@ -13,10 +13,10 @@ export default function MapComponent({ venues, onCalloutPress }: MapComponentPro
     <MapView
       style={styles.map}
       initialRegion={{
-        latitude: 40.730610,
-        longitude: -73.935242,
-        latitudeDelta: 0.1,
-        longitudeDelta: 0.1,
+        latitude: 45.9432,
+        longitude: 24.9668,
+        latitudeDelta: 5,
+        longitudeDelta: 5,
       }}
     >
       <UrlTile
@@ -24,10 +24,10 @@ export default function MapComponent({ venues, onCalloutPress }: MapComponentPro
         maximumZ={19}
         flipY={false}
       />
-      {venues.map((venue) => (
+      {venues.map((venue, index) => (
         <Marker
-          key={venue.id}
-          coordinate={{ latitude: venue.latitude, longitude: venue.longitude }}
+          key={venue.id || index.toString()}
+          coordinate={{ latitude: venue.coordinates.lat, longitude: venue.coordinates.long }}
           title={venue.name}
           description={venue.short_description}
           onCalloutPress={() => onCalloutPress(venue)}

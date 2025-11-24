@@ -44,18 +44,18 @@ export default function MapComponent({ venues, onCalloutPress }: MapComponentPro
     <View style={styles.container}>
       <div style={{ height: '100%', width: '100%' }}>
         <MapContainer 
-          center={[40.730610, -73.935242]} 
-          zoom={13} 
+          center={[45.9432, 24.9668]} 
+          zoom={7} 
           style={{ height: '100%', width: '100%' }}
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          {venues.map((venue) => (
+          {venues.map((venue, index) => (
             <Marker 
-              key={venue.id} 
-              position={[venue.latitude, venue.longitude]}
+              key={venue.id || index.toString()} 
+              position={[venue.coordinates.lat, venue.coordinates.long]}
             >
               <Popup>
                 <div 

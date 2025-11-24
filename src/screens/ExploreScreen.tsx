@@ -4,14 +4,18 @@ import { Text, Card, Title, Paragraph, SegmentedButtons, FAB } from 'react-nativ
 import MapComponent from '../components/MapComponent';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ExploreStackParamList } from '../navigation/types';
-import venuesData from '../data/venues.json';
+import venuesData from '../data/locatii.json';
 import { Venue } from '../types';
 
 type Props = NativeStackScreenProps<ExploreStackParamList, 'ExploreMain'>;
 
 export default function ExploreScreen({ navigation }: Props) {
   const [viewMode, setViewMode] = useState('map');
-  const venues: Venue[] = venuesData as Venue[];
+  // Map data to add IDs since locatii.json doesn't have them
+  const venues: Venue[] = (venuesData as any[]).map((item, index) => ({
+    ...item,
+    id: (index + 1).toString(),
+  }));
 
   const renderItem = ({ item }: { item: Venue }) => (
     <Card style={styles.card} onPress={() => navigation.navigate('Details', { venue: item })}>
@@ -46,7 +50,7 @@ export default function ExploreScreen({ navigation }: Props) {
         <FlatList
           data={venues}
           renderItem={renderItem}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item, index) => item.id || index.toString()}
           contentContainerStyle={styles.list}
         />
       )}

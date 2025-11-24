@@ -1,9 +1,11 @@
 export interface Venue {
-  id: string;
+  id?: string; // Optional since locatii.json doesn't have it
   name: string;
   address: string;
-  latitude: number;
-  longitude: number;
+  coordinates: {
+    lat: number;
+    long: number;
+  };
   image_url: string;
   short_description: string;
   rating: number;
