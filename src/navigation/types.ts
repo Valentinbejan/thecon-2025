@@ -13,6 +13,7 @@ export type ExploreStackParamList = {
 
 export type AppTabsParamList = {
   Explore: NavigatorScreenParams<ExploreStackParamList>;
+  Chat: undefined;
   Profile: undefined;
 };
 
