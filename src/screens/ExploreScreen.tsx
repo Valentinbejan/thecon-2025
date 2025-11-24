@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native';
-import { Text, Card, Title, Paragraph, SegmentedButtons, FAB, Searchbar } from 'react-native-paper';
+import { Text, Card, Title, Paragraph, SegmentedButtons, FAB, Searchbar, Button } from 'react-native-paper';
 import MapComponent from '../components/MapComponent';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ExploreStackParamList } from '../navigation/types';
@@ -14,6 +14,7 @@ export default function ExploreScreen({ navigation }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredVenues, setFilteredVenues] = useState<Venue[]>([]);
   const [focusedVenue, setFocusedVenue] = useState<Venue | null>(null);
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
 
   // Map data to add IDs since locatii.json doesn't have them
   const allVenues: Venue[] = (venuesData as any[]).map((item, index) => ({
@@ -35,14 +36,14 @@ export default function ExploreScreen({ navigation }: Props) {
     }
   }, [searchQuery]);
 
-  const onChangeSearch = (query: string) => setSearchQuery(query);
+  const onChangeSearch = (query: string) => {
+    setSearchQuery(query);
+    if (focusedVenue) setFocusedVenue(null);
+  };
 
   const handleVenueSelect = (venue: Venue) => {
     setFocusedVenue(venue);
     setViewMode('map');
-    // Optional: Navigate to details directly or just zoom map?
-    // User asked: "once selected it will zoom in on the location and alow me to go to the respective details of that location from that list"
-    // So zooming is primary. Details access is secondary (via marker).
   };
 
   const renderItem = ({ item }: { item: Venue }) => (
@@ -56,32 +57,18 @@ export default function ExploreScreen({ navigation }: Props) {
     </Card>
   );
 
+  // Hide the navigation header
+  React.useLayoutEffect(() => {
+    navigation.setOptions({ headerShown: false });
+  }, [navigation]);
+
   return (
     <View style={styles.container}>
-      <View style={styles.searchContainer}>
-        <Searchbar
-          placeholder="Search locations..."
-          onChangeText={onChangeSearch}
-          value={searchQuery}
-          style={styles.searchbar}
-        />
-      </View>
-
-      <View style={styles.toggleContainer}>
-        <SegmentedButtons
-          value={viewMode}
-          onValueChange={setViewMode}
-          buttons={[
-            { value: 'map', label: 'Map', icon: 'map' },
-            { value: 'list', label: 'List', icon: 'format-list-bulleted' },
-          ]}
-        />
-      </View>
-
+      {/* Map is always full screen now */}
       {viewMode === 'map' ? (
         <MapComponent 
           venues={filteredVenues} 
-          onCalloutPress={(venue) => navigation.navigate('Details', { venue })}
+          onCalloutPress={(venue) => setFocusedVenue(venue)}
           focusedVenue={focusedVenue}
         />
       ) : (
@@ -90,11 +77,47 @@ export default function ExploreScreen({ navigation }: Props) {
           renderItem={renderItem}
           keyExtractor={(item, index) => item.id || index.toString()}
           contentContainerStyle={styles.list}
+          style={{ marginTop: isHeaderVisible ? 160 : 0 }} // Push list down if header is visible
         />
       )}
+
+      {/* Header Container - Absolute Positioned */}
+      {isHeaderVisible && (
+        <View style={styles.headerContainer}>
+          <View style={styles.searchContainer}>
+            <Searchbar
+              placeholder="Search locations..."
+              onChangeText={onChangeSearch}
+              value={searchQuery}
+              style={styles.searchbar}
+            />
+          </View>
+
+          <View style={styles.toggleContainer}>
+            <SegmentedButtons
+              value={viewMode}
+              onValueChange={setViewMode}
+              buttons={[
+                { value: 'map', label: 'Map', icon: 'map' },
+                { value: 'list', label: 'List', icon: 'format-list-bulleted' },
+              ]}
+            />
+          </View>
+        </View>
+      )}
+
+      {/* Toggle Button (FAB) */}
+      <FAB
+        icon={isHeaderVisible ? "chevron-up" : "magnify"}
+        style={[styles.fab, isHeaderVisible ? styles.fabExpanded : styles.fabCollapsed]}
+        onPress={() => setIsHeaderVisible(!isHeaderVisible)}
+        size="small"
+        mode="elevated"
+        label={isHeaderVisible ? "Collapse" : "Search"}
+      />
       
-      {/* Suggestions List when searching and in Map mode */}
-      {searchQuery.length > 0 && viewMode === 'map' && (
+      {/* Suggestions List */}
+      {searchQuery.length > 0 && viewMode === 'map' && !focusedVenue && isHeaderVisible && (
         <View style={styles.suggestionsContainer}>
           <FlatList
             data={filteredVenues}
@@ -108,27 +131,69 @@ export default function ExploreScreen({ navigation }: Props) {
           />
         </View>
       )}
+
+      {/* Persistent Details Bar */}
+      {focusedVenue && viewMode === 'map' && (
+        <Card style={styles.previewCard}>
+          <Card.Content style={styles.previewContent}>
+            <View style={styles.previewText}>
+              <Title>{focusedVenue.name}</Title>
+              <Paragraph numberOfLines={1}>{focusedVenue.short_description}</Paragraph>
+              <Paragraph>⭐ {focusedVenue.rating}</Paragraph>
+            </View>
+            <View style={styles.previewActions}>
+              <Button 
+                mode="contained" 
+                onPress={() => navigation.navigate('Details', { venue: focusedVenue })}
+                compact
+              >
+                Details
+              </Button>
+              <Button 
+                mode="text" 
+                onPress={() => setFocusedVenue(null)}
+                compact
+              >
+                Close
+              </Button>
+            </View>
+          </Card.Content>
+        </Card>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  searchContainer: { padding: 10, backgroundColor: '#fff', zIndex: 2 },
-  searchbar: { elevation: 2 },
-  toggleContainer: { paddingHorizontal: 10, paddingBottom: 10, backgroundColor: '#fff', zIndex: 1 },
+  headerContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#fff',
+    zIndex: 2,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+    elevation: 4,
+    paddingTop: 40, // Status bar padding
+    paddingBottom: 10,
+  },
+  searchContainer: { paddingHorizontal: 10, paddingBottom: 5 },
+  searchbar: { elevation: 0, backgroundColor: '#f0f0f0' },
+  toggleContainer: { paddingHorizontal: 10 },
   list: { padding: 10 },
   card: { marginBottom: 10 },
   suggestionsContainer: {
     position: 'absolute',
-    top: 130, // Adjust based on header + searchbar height
+    top: 110, // Right below search bar, covering toggle
     left: 10,
     right: 10,
     backgroundColor: 'white',
     borderRadius: 8,
-    elevation: 4,
-    maxHeight: 200,
-    zIndex: 10,
+    elevation: 20,
+    maxHeight: 300,
+    zIndex: 1000,
   },
   suggestionsList: {
     padding: 5,
@@ -137,5 +202,38 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
+  },
+  previewCard: {
+    position: 'absolute',
+    bottom: 20,
+    left: 10,
+    right: 10,
+    elevation: 8,
+    zIndex: 100,
+    backgroundColor: 'white',
+  },
+  previewContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  previewText: {
+    flex: 1,
+    marginRight: 10,
+  },
+  previewActions: {
+    alignItems: 'center',
+  },
+  fab: {
+    position: 'absolute',
+    right: 10,
+    zIndex: 200,
+    backgroundColor: 'white',
+  },
+  fabCollapsed: {
+    top: 50,
+  },
+  fabExpanded: {
+    top: 170, // Below the header
   },
 });
