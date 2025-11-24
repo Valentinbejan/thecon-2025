@@ -1,0 +1,162 @@
+[
+  {
+    "id": "1",
+    "city": "Bucharest",
+    "category": "Café / Coffee Shop",
+    "cuisine": ["Bakery / Breakfast"],
+    "atmosphere": ["Quiet / Study-friendly", "Relaxed"],
+    "features": ["Specialty coffee", "Terrace"]
+  },
+  {
+    "id": "2",
+    "city": "Cluj-Napoca",
+    "category": "Restaurant",
+    "cuisine": ["Romanian", "Traditional"],
+    "atmosphere": ["Traditional", "Group-friendly"],
+    "features": ["Live music", "Terrace"]
+  },
+  {
+    "id": "3",
+    "city": "Timișoara",
+    "category": "Bistro",
+    "cuisine": ["Asian / Wok", "Fast-Food"],
+    "atmosphere": ["Student-friendly", "Modern"],
+    "features": ["Near campus", "Affordable / student menu"]
+  },
+  {
+    "id": "4",
+    "city": "Iași",
+    "category": "Café / Coffee Shop",
+    "cuisine": ["Brunch", "Bakery / Breakfast"],
+    "atmosphere": ["Modern", "Relaxed"],
+    "features": ["Specialty coffee"]
+  },
+  {
+    "id": "5",
+    "city": "Brașov",
+    "category": "Pizzeria / Italian",
+    "cuisine": ["Italian / Mediterranean"],
+    "atmosphere": ["Group-friendly", "Relaxed"],
+    "features": ["Wood-fired oven", "Terrace"]
+  },
+  {
+    "id": "6",
+    "city": "Bucharest",
+    "category": "Vegan / Healthy",
+    "cuisine": ["Vegan / Plant-based", "Smoothies / Acai"],
+    "atmosphere": ["Modern", "Relaxed"],
+    "features": ["Healthy options"]
+  },
+  {
+    "id": "7",
+    "city": "Cluj-Napoca",
+    "category": "Café / Coffee Shop",
+    "cuisine": ["Bakery / Breakfast"],
+    "atmosphere": ["Student-friendly", "Social / Gaming"],
+    "features": ["Near campus", "Affordable / student menu"]
+  },
+  {
+    "id": "8",
+    "city": "Bucharest",
+    "category": "Burger Place",
+    "cuisine": ["Burgers", "Fast-Food"],
+    "atmosphere": ["Modern", "Social / Gaming"],
+    "features": ["Terrace"]
+  },
+  {
+    "id": "9",
+    "city": "Sibiu",
+    "category": "Tea House",
+    "cuisine": ["Bakery / Breakfast"],
+    "atmosphere": ["Quiet / Study-friendly", "Relaxed"],
+    "features": ["Board games / consoles"]
+  },
+  {
+    "id": "10",
+    "city": "Constanța",
+    "category": "Restaurant",
+    "cuisine": ["Seafood", "Italian / Mediterranean"],
+    "atmosphere": ["Romantic", "Relaxed"],
+    "features": ["Sea view", "Terrace"]
+  },
+  {
+    "id": "11",
+    "city": "Oradea",
+    "category": "Bistro",
+    "cuisine": ["Italian / Mediterranean"],
+    "atmosphere": ["Romantic", "Modern"],
+    "features": ["Terrace"]
+  },
+  {
+    "id": "12",
+    "city": "Galați",
+    "category": "Gaming Café",
+    "cuisine": ["Fast-Food"],
+    "atmosphere": ["Social / Gaming", "Student-friendly"],
+    "features": ["Board games / consoles", "Affordable / student menu"]
+  },
+  {
+    "id": "13",
+    "city": "Craiova",
+    "category": "Pizzeria / Italian",
+    "cuisine": ["Italian / Mediterranean"],
+    "atmosphere": ["Romantic", "Relaxed"],
+    "features": ["Terrace"]
+  },
+  {
+    "id": "14",
+    "city": "Ploiești",
+    "category": "Café / Coffee Shop",
+    "cuisine": ["Bakery / Breakfast"],
+    "atmosphere": ["Quiet / Study-friendly", "Modern"],
+    "features": ["Specialty coffee"]
+  },
+  {
+    "id": "15",
+    "city": "Timișoara",
+    "category": "Fast-Food",
+    "cuisine": ["Fast-Food"],
+    "atmosphere": ["Student-friendly"],
+    "features": ["Near campus", "Affordable / student menu"]
+  },
+  {
+    "id": "16",
+    "city": "Târgu Mureș",
+    "category": "Restaurant",
+    "cuisine": ["Transylvanian", "Traditional"],
+    "atmosphere": ["Traditional", "Relaxed"],
+    "features": ["Terrace"]
+  },
+  {
+    "id": "17",
+    "city": "Alba Iulia",
+    "category": "Smoothie Bar",
+    "cuisine": ["Smoothies / Acai", "Healthy"],
+    "atmosphere": ["Modern", "Student-friendly"],
+    "features": ["Healthy options"]
+  },
+  {
+    "id": "18",
+    "city": "Brașov",
+    "category": "Restaurant",
+    "cuisine": ["Traditional", "Romanian"],
+    "atmosphere": ["Traditional", "Group-friendly"],
+    "features": ["Affordable / student menu"]
+  },
+  {
+    "id": "19",
+    "city": "Iași",
+    "category": "Pub / Bar",
+    "cuisine": ["Burgers", "Fast-Food"],
+    "atmosphere": ["Social / Gaming", "Student-friendly"],
+    "features": ["Craft beer", "Live music"]
+  },
+  {
+    "id": "20",
+    "city": "Cluj-Napoca",
+    "category": "Café / Coffee Shop",
+    "cuisine": ["Bakery / Breakfast"],
+    "atmosphere": ["Modern", "Relaxed"],
+    "features": ["Specialty coffee"]
+  }
+]

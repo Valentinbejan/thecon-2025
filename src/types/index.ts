@@ -9,4 +9,10 @@ export interface Venue {
   image_url: string;
   short_description: string;
   rating: number;
+  // New fields from metadata
+  city?: string;
+  category?: string;
+  cuisine?: string[];
+  atmosphere?: string[];
+  features?: string[];
 }
