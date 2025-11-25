@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { View, StyleSheet, FlatList, Image, TouchableOpacity, ScrollView, Modal } from 'react-native';
-import { Text, Card, Title, Paragraph, SegmentedButtons, FAB, Searchbar, Button, Chip, Divider, IconButton, Banner } from 'react-native-paper';
+import { Text, Card, Title, Paragraph, SegmentedButtons, FAB, Searchbar, Button, Chip, Divider, IconButton, Banner, ActivityIndicator } from 'react-native-paper';
 import MapComponent from '../components/MapComponent';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useFocusEffect } from '@react-navigation/native';
@@ -24,12 +24,13 @@ const DISTANCE_OPTIONS = [10, 25, 50, 100, 200, 500];
 
 export default function ExploreScreen({ navigation }: Props) {
   const { theme } = useTheme();
-  const [viewMode, setViewMode] = useState('map');
+  const [viewMode, setViewMode] = useState('list'); // Start with list view - safer
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredVenues, setFilteredVenues] = useState<Venue[]>([]);
   const [focusedVenue, setFocusedVenue] = useState<Venue | null>(null);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // User Location State
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
@@ -59,6 +60,10 @@ export default function ExploreScreen({ navigation }: Props) {
               .eq('id', session.user.id)
               .single();
 
+            if (error) {
+              console.log('Profile fetch error:', error.message);
+            }
+
             if (isActive && data && data.city && data.city_lat && data.city_long) {
               setUserLocation({
                 city: data.city,
@@ -70,9 +75,12 @@ export default function ExploreScreen({ navigation }: Props) {
             }
           }
         } catch (error) {
-          console.error('Error fetching user location:', error);
+          console.log('Error fetching user location:', error);
         } finally {
-          if (isActive) setLocationLoading(false);
+          if (isActive) {
+            setLocationLoading(false);
+            setIsLoading(false);
+          }
         }
       }
 
@@ -86,79 +94,89 @@ export default function ExploreScreen({ navigation }: Props) {
 
   // Merge Data and calculate distances
   const allVenues: Venue[] = useMemo(() => {
-    return (venuesData as any[]).map((item, index) => {
-      const id = (index + 1).toString();
-      const metadata = venueMetadata.find((m) => m.id === id);
-      
-      let distanceFromUser: number | undefined;
-      if (userLocation) {
-        distanceFromUser = calculateDistance(
-          userLocation.lat,
-          userLocation.long,
-          item.coordinates.lat,
-          item.coordinates.long
-        );
-      }
+    try {
+      return (venuesData as any[]).map((item, index) => {
+        const id = (index + 1).toString();
+        const metadata = venueMetadata.find((m) => m.id === id);
+        
+        let distanceFromUser: number | undefined;
+        if (userLocation) {
+          distanceFromUser = calculateDistance(
+            userLocation.lat,
+            userLocation.long,
+            item.coordinates.lat,
+            item.coordinates.long
+          );
+        }
 
-      return {
-        ...item,
-        id,
-        ...metadata,
-        distanceFromUser,
-      };
-    });
+        return {
+          ...item,
+          id,
+          ...metadata,
+          distanceFromUser,
+        };
+      });
+    } catch (error) {
+      console.log('Error processing venues:', error);
+      return [];
+    }
   }, [userLocation]);
 
   useEffect(() => {
-    let filtered = allVenues;
+    try {
+      let filtered = allVenues;
 
-    // Apply Search
-    if (searchQuery) {
-      const lowerQuery = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (venue) =>
-          venue.name.toLowerCase().includes(lowerQuery) ||
-          venue.address.toLowerCase().includes(lowerQuery)
-      );
-    }
+      // Apply Search
+      if (searchQuery) {
+        const lowerQuery = searchQuery.toLowerCase();
+        filtered = filtered.filter(
+          (venue) =>
+            venue.name.toLowerCase().includes(lowerQuery) ||
+            venue.address.toLowerCase().includes(lowerQuery)
+        );
+      }
 
-    // Apply Filters
-    if (selectedCities.length > 0) {
-      filtered = filtered.filter((venue) => venue.city && selectedCities.includes(venue.city));
-    }
-    if (selectedCategories.length > 0) {
-      filtered = filtered.filter((venue) => venue.category && selectedCategories.includes(venue.category));
-    }
-    if (minRating) {
-      filtered = filtered.filter((venue) => venue.rating >= minRating);
-    }
-    if (selectedCuisines.length > 0) {
-      filtered = filtered.filter((venue) => venue.cuisine && venue.cuisine.some(c => selectedCuisines.includes(c)));
-    }
-    if (selectedAtmospheres.length > 0) {
-      filtered = filtered.filter((venue) => venue.atmosphere && venue.atmosphere.some(a => selectedAtmospheres.includes(a)));
-    }
-    if (selectedFeatures.length > 0) {
-      filtered = filtered.filter((venue) => venue.features && venue.features.some(f => selectedFeatures.includes(f)));
-    }
-    
-    // Apply Distance Filter
-    if (maxDistance && userLocation) {
-      filtered = filtered.filter((venue) => 
-        venue.distanceFromUser !== undefined && venue.distanceFromUser <= maxDistance
-      );
-    }
+      // Apply Filters
+      if (selectedCities.length > 0) {
+        filtered = filtered.filter((venue) => venue.city && selectedCities.includes(venue.city));
+      }
+      if (selectedCategories.length > 0) {
+        filtered = filtered.filter((venue) => venue.category && selectedCategories.includes(venue.category));
+      }
+      if (minRating) {
+        filtered = filtered.filter((venue) => venue.rating >= minRating);
+      }
+      if (selectedCuisines.length > 0) {
+        filtered = filtered.filter((venue) => venue.cuisine && venue.cuisine.some(c => selectedCuisines.includes(c)));
+      }
+      if (selectedAtmospheres.length > 0) {
+        filtered = filtered.filter((venue) => venue.atmosphere && venue.atmosphere.some(a => selectedAtmospheres.includes(a)));
+      }
+      if (selectedFeatures.length > 0) {
+        filtered = filtered.filter((venue) => venue.features && venue.features.some(f => selectedFeatures.includes(f)));
+      }
+      
+      // Apply Distance Filter
+      if (maxDistance && userLocation) {
+        filtered = filtered.filter((venue) => 
+          venue.distanceFromUser !== undefined && venue.distanceFromUser <= maxDistance
+        );
+      }
 
-    // Sort by distance if user has location set
-    if (userLocation) {
-      filtered = filtered.sort((a, b) => {
-        const distA = a.distanceFromUser ?? Infinity;
-        const distB = b.distanceFromUser ?? Infinity;
-        return distA - distB;
-      });
-    }
+      // Sort by distance if user has location set
+      if (userLocation) {
+        filtered = filtered.sort((a, b) => {
+          const distA = a.distanceFromUser ?? Infinity;
+          const distB = b.distanceFromUser ?? Infinity;
+          return distA - distB;
+        });
+      }
 
-    setFilteredVenues(filtered);
+      setFilteredVenues(filtered);
+    } catch (error) {
+      console.log('Error filtering venues:', error);
+      setFilteredVenues(allVenues);
+    }
   }, [searchQuery, selectedCities, selectedCategories, minRating, selectedCuisines, selectedAtmospheres, selectedFeatures, maxDistance, userLocation, allVenues]);
 
   const onChangeSearch = (query: string) => {
@@ -224,6 +242,16 @@ export default function ExploreScreen({ navigation }: Props) {
   React.useLayoutEffect(() => {
     navigation.setOptions({ headerShown: false });
   }, [navigation]);
+
+  // Show loading while initializing
+  if (isLoading) {
+    return (
+      <View style={[styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+        <Text style={{ color: theme.colors.onSurface, marginTop: 10 }}>Loading venues...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -563,6 +591,11 @@ export default function ExploreScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   headerContainer: {
     position: 'absolute',
     top: 0,
