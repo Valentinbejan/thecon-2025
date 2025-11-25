@@ -5,10 +5,13 @@ import ExploreStack from './ExploreStack';
 import ProfileScreen from '../screens/ProfileScreen';
 import ChatScreen from '../screens/ChatScreen';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTheme } from '../context/ThemeContext';
 
 const Tab = createBottomTabNavigator<AppTabsParamList>();
 
 export default function AppTabs() {
+  const { theme } = useTheme();
+
   return (
     <Tab.Navigator 
       screenOptions={({ route }) => ({
@@ -28,8 +31,12 @@ export default function AppTabs() {
 
           return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#6200ee',
-        tabBarInactiveTintColor: 'gray',
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.onSurfaceVariant,
+        tabBarStyle: {
+          backgroundColor: theme.colors.surface,
+          borderTopColor: theme.colors.outlineVariant,
+        }
       })}
     >
       <Tab.Screen name="Explore" component={ExploreStack} />

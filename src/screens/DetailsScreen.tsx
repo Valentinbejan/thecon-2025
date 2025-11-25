@@ -4,10 +4,12 @@ import { Text, Button, Title, Paragraph, ActivityIndicator, Card } from 'react-n
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ExploreStackParamList } from '../navigation/types';
 import { generateVibeDescription } from '../lib/ai';
+import { useTheme } from '../context/ThemeContext';
 
 type Props = NativeStackScreenProps<ExploreStackParamList, 'Details'>;
 
 export default function DetailsScreen({ route }: Props) {
+  const { theme } = useTheme();
   const { venue } = route.params;
   const [vibeDescription, setVibeDescription] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -56,25 +58,25 @@ export default function DetailsScreen({ route }: Props) {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Image source={{ uri: venue.image_url }} style={styles.image} />
       <View style={styles.content}>
-        <Title style={styles.title}>{venue.name}</Title>
-        <Paragraph style={styles.address}>{venue.address}</Paragraph>
-        <Paragraph style={styles.rating}>⭐ {venue.rating}</Paragraph>
+        <Title style={[styles.title, { color: theme.colors.onBackground }]}>{venue.name}</Title>
+        <Paragraph style={[styles.address, { color: theme.colors.onSurfaceVariant }]}>{venue.address}</Paragraph>
+        <Paragraph style={[styles.rating, { color: theme.colors.onBackground }]}>⭐ {venue.rating}</Paragraph>
         
-        <Card style={styles.descriptionCard}>
+        <Card style={[styles.descriptionCard, { backgroundColor: theme.colors.surface }]}>
           <Card.Content>
-            <Title>Description</Title>
-            <Paragraph>{venue.short_description}</Paragraph>
+            <Title style={{ color: theme.colors.onSurface }}>Description</Title>
+            <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>{venue.short_description}</Paragraph>
           </Card.Content>
         </Card>
 
         {vibeDescription && (
-          <Card style={[styles.descriptionCard, styles.vibeCard]}>
+          <Card style={[styles.descriptionCard, styles.vibeCard, { backgroundColor: theme.colors.secondaryContainer, borderColor: theme.colors.secondary }]}>
             <Card.Content>
-              <Title style={styles.vibeTitle}>✨ The Vibe ✨</Title>
-              <Paragraph>{vibeDescription}</Paragraph>
+              <Title style={[styles.vibeTitle, { color: theme.colors.onSecondaryContainer }]}>✨ The Vibe ✨</Title>
+              <Paragraph style={{ color: theme.colors.onSecondaryContainer }}>{vibeDescription}</Paragraph>
             </Card.Content>
           </Card>
         )}
@@ -115,15 +117,15 @@ export default function DetailsScreen({ route }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1 },
   image: { width: '100%', height: 250 },
   content: { padding: 20 },
   title: { fontSize: 24, fontWeight: 'bold' },
-  address: { color: '#666', marginBottom: 5 },
+  address: { marginBottom: 5 },
   rating: { marginBottom: 20 },
   descriptionCard: { marginBottom: 15 },
-  vibeCard: { backgroundColor: '#f0f4ff', borderColor: '#d0daff', borderWidth: 1 },
-  vibeTitle: { color: '#4a6ee0' },
+  vibeCard: { borderWidth: 1 },
+  vibeTitle: {},
   actions: { marginTop: 10 },
   button: { marginBottom: 10 },
 });

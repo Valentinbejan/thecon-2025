@@ -4,10 +4,12 @@ import { TextInput, Button, Title } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../navigation/types';
 import { supabase } from '../lib/supabase';
+import { useTheme } from '../context/ThemeContext';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'SignUp'>;
 
 export default function SignUpScreen({ navigation }: Props) {
+  const { theme } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -25,14 +27,15 @@ export default function SignUpScreen({ navigation }: Props) {
   }
 
   return (
-    <View style={styles.container}>
-      <Title style={styles.title}>Create Account</Title>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <Title style={[styles.title, { color: theme.colors.onBackground }]}>Create Account</Title>
       <TextInput
         label="Email"
         value={email}
         onChangeText={(text) => setEmail(text)}
         autoCapitalize="none"
-        style={styles.input}
+        style={[styles.input, { backgroundColor: theme.colors.surface }]}
+        textColor={theme.colors.onSurface}
       />
       <TextInput
         label="Password"
@@ -40,7 +43,8 @@ export default function SignUpScreen({ navigation }: Props) {
         onChangeText={(text) => setPassword(text)}
         secureTextEntry
         autoCapitalize="none"
-        style={styles.input}
+        style={[styles.input, { backgroundColor: theme.colors.surface }]}
+        textColor={theme.colors.onSurface}
       />
       <Button mode="contained" onPress={signUpWithEmail} loading={loading} style={styles.button}>
         Sign Up
@@ -53,7 +57,7 @@ export default function SignUpScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#fff' },
+  container: { flex: 1, justifyContent: 'center', padding: 20 },
   title: { textAlign: 'center', marginBottom: 20 },
   input: { marginBottom: 10 },
   button: { marginTop: 10 },

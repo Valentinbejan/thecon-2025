@@ -10,6 +10,7 @@ import venueMetadata from '../data/venue_metadata.json';
 import { Venue, UserLocation } from '../types';
 import { supabase } from '../lib/supabase';
 import { calculateDistance, getDistanceLabel } from '../lib/distance';
+import { useTheme } from '../context/ThemeContext';
 
 type Props = NativeStackScreenProps<ExploreStackParamList, 'ExploreMain'>;
 
@@ -22,6 +23,7 @@ const FEATURES = ['Terrace', 'Sea view', 'Live music', 'Specialty coffee', 'Near
 const DISTANCE_OPTIONS = [10, 25, 50, 100, 200, 500];
 
 export default function ExploreScreen({ navigation }: Props) {
+  const { theme } = useTheme();
   const [viewMode, setViewMode] = useState('map');
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredVenues, setFilteredVenues] = useState<Venue[]>([]);
@@ -41,10 +43,6 @@ export default function ExploreScreen({ navigation }: Props) {
   const [selectedAtmospheres, setSelectedAtmospheres] = useState<string[]>([]);
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
   const [maxDistance, setMaxDistance] = useState<number | null>(null);
-
-
-
-// ...
 
   // Fetch user location from profile
   useFocusEffect(
@@ -200,19 +198,19 @@ export default function ExploreScreen({ navigation }: Props) {
   ].filter(Boolean).length;
 
   const renderItem = ({ item }: { item: Venue }) => (
-    <Card style={styles.card} onPress={() => navigation.navigate('Details', { venue: item })}>
+    <Card style={[styles.card, { backgroundColor: theme.colors.surface }]} onPress={() => navigation.navigate('Details', { venue: item })}>
       <Card.Cover source={{ uri: item.image_url }} />
       <Card.Content>
-        <Title>{item.name}</Title>
-        <Paragraph>{item.short_description}</Paragraph>
+        <Title style={{ color: theme.colors.onSurface }}>{item.name}</Title>
+        <Paragraph style={{ color: theme.colors.onSurfaceVariant }}>{item.short_description}</Paragraph>
         <View style={styles.cardFooter}>
           <View style={styles.cardFooterLeft}>
-            <Paragraph>⭐ {item.rating}</Paragraph>
-            <Text style={styles.cityText}>{item.city}</Text>
+            <Paragraph style={{ color: theme.colors.onSurface }}>⭐ {item.rating}</Paragraph>
+            <Text style={[styles.cityText, { color: theme.colors.onSurfaceVariant }]}>{item.city}</Text>
           </View>
           {item.distanceFromUser !== undefined && (
-            <View style={styles.distanceBadge}>
-              <Text style={styles.distanceText}>📍 {getDistanceLabel(item.distanceFromUser)}</Text>
+            <View style={[styles.distanceBadge, { backgroundColor: theme.colors.secondaryContainer }]}>
+              <Text style={[styles.distanceText, { color: theme.colors.onSecondaryContainer }]}>📍 {getDistanceLabel(item.distanceFromUser)}</Text>
             </View>
           )}
         </View>
@@ -226,7 +224,7 @@ export default function ExploreScreen({ navigation }: Props) {
   }, [navigation]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       {/* Location Banner */}
       {!locationLoading && !userLocation && (
         <Banner
@@ -263,8 +261,8 @@ export default function ExploreScreen({ navigation }: Props) {
           style={{ marginTop: isHeaderVisible ? (userLocation ? 160 : 220) : 0 }}
           ListHeaderComponent={
             userLocation ? (
-              <View style={styles.listHeader}>
-                <Text style={styles.listHeaderText}>
+              <View style={[styles.listHeader, { backgroundColor: theme.colors.primaryContainer }]}>
+                <Text style={[styles.listHeaderText, { color: theme.colors.onPrimaryContainer }]}>
                   📍 Showing venues from {userLocation.city}
                   {maxDistance ? ` within ${maxDistance} km` : ''}
                 </Text>
@@ -276,13 +274,13 @@ export default function ExploreScreen({ navigation }: Props) {
 
       {/* Header Container - Absolute Positioned */}
       {isHeaderVisible && (
-        <View style={[styles.headerContainer, { top: !locationLoading && !userLocation ? 60 : 0 }]}>
+        <View style={[styles.headerContainer, { top: !locationLoading && !userLocation ? 60 : 0, backgroundColor: theme.colors.surface }]}>
           <View style={styles.searchContainer}>
             <Searchbar
               placeholder="Search locations..."
               onChangeText={onChangeSearch}
               value={searchQuery}
-              style={styles.searchbar}
+              style={[styles.searchbar, { backgroundColor: theme.colors.elevation.level2 }]}
             />
           </View>
 
@@ -299,7 +297,7 @@ export default function ExploreScreen({ navigation }: Props) {
 
           {userLocation && (
             <View style={styles.locationIndicator}>
-              <Text style={styles.locationIndicatorText}>
+              <Text style={[styles.locationIndicatorText, { color: theme.colors.onSurfaceVariant }]}>
                 📍 Your location: {userLocation.city}
               </Text>
             </View>
@@ -310,7 +308,7 @@ export default function ExploreScreen({ navigation }: Props) {
       {/* Toggle Button (FAB) */}
       <FAB
         icon={isHeaderVisible ? "chevron-up" : "magnify"}
-        style={[styles.fab, isHeaderVisible ? styles.fabExpanded : styles.fabCollapsed]}
+        style={[styles.fab, isHeaderVisible ? styles.fabExpanded : styles.fabCollapsed, { backgroundColor: theme.colors.surface }]}
         onPress={() => setIsHeaderVisible(!isHeaderVisible)}
         size="small"
         mode="elevated"
@@ -319,16 +317,16 @@ export default function ExploreScreen({ navigation }: Props) {
       
       {/* Suggestions List */}
       {searchQuery.length > 0 && viewMode === 'map' && !focusedVenue && isHeaderVisible && (
-        <View style={styles.suggestionsContainer}>
+        <View style={[styles.suggestionsContainer, { backgroundColor: theme.colors.surface }]}>
           <FlatList
             data={filteredVenues}
             keyExtractor={(item, index) => item.id || index.toString()}
             renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => handleVenueSelect(item)} style={styles.suggestionItem}>
+              <TouchableOpacity onPress={() => handleVenueSelect(item)} style={[styles.suggestionItem, { borderBottomColor: theme.colors.outlineVariant }]}>
                 <View style={styles.suggestionContent}>
-                  <Text>{item.name}</Text>
+                  <Text style={{ color: theme.colors.onSurface }}>{item.name}</Text>
                   {item.distanceFromUser !== undefined && (
-                    <Text style={styles.suggestionDistance}>{getDistanceLabel(item.distanceFromUser)}</Text>
+                    <Text style={[styles.suggestionDistance, { color: theme.colors.primary }]}>{getDistanceLabel(item.distanceFromUser)}</Text>
                   )}
                 </View>
               </TouchableOpacity>
@@ -340,15 +338,15 @@ export default function ExploreScreen({ navigation }: Props) {
 
       {/* Persistent Details Bar */}
       {focusedVenue && viewMode === 'map' && (
-        <Card style={styles.previewCard}>
+        <Card style={[styles.previewCard, { backgroundColor: theme.colors.surface }]}>
           <Card.Content style={styles.previewContent}>
             <View style={styles.previewText}>
-              <Title>{focusedVenue.name}</Title>
-              <Paragraph numberOfLines={1}>{focusedVenue.short_description}</Paragraph>
+              <Title style={{ color: theme.colors.onSurface }}>{focusedVenue.name}</Title>
+              <Paragraph numberOfLines={1} style={{ color: theme.colors.onSurfaceVariant }}>{focusedVenue.short_description}</Paragraph>
               <View style={styles.previewMeta}>
-                <Paragraph>⭐ {focusedVenue.rating}</Paragraph>
+                <Paragraph style={{ color: theme.colors.onSurface }}>⭐ {focusedVenue.rating}</Paragraph>
                 {focusedVenue.distanceFromUser !== undefined && (
-                  <Text style={styles.previewDistance}>
+                  <Text style={[styles.previewDistance, { color: theme.colors.primary }]}>
                     📍 {getDistanceLabel(focusedVenue.distanceFromUser)} from you
                   </Text>
                 )}
@@ -378,7 +376,8 @@ export default function ExploreScreen({ navigation }: Props) {
       {viewMode === 'list' && (
         <FAB
           icon="filter-variant"
-          style={styles.filterFab}
+          style={[styles.filterFab, { backgroundColor: theme.colors.primaryContainer }]}
+          color={theme.colors.onPrimaryContainer}
           onPress={() => setIsFilterVisible(true)}
           size="small"
           mode="elevated"
@@ -393,9 +392,9 @@ export default function ExploreScreen({ navigation }: Props) {
         presentationStyle="pageSheet"
         onRequestClose={() => setIsFilterVisible(false)}
       >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Title>Filters</Title>
+        <View style={[styles.modalContainer, { backgroundColor: theme.colors.background }]}>
+          <View style={[styles.modalHeader, { borderBottomColor: theme.colors.outlineVariant }]}>
+            <Title style={{ color: theme.colors.onSurface }}>Filters</Title>
             <IconButton icon="close" onPress={() => setIsFilterVisible(false)} />
           </View>
           
@@ -403,7 +402,7 @@ export default function ExploreScreen({ navigation }: Props) {
             {/* Distance Filter - Only show if user has location */}
             {userLocation && (
               <>
-                <Text style={styles.filterSectionTitle}>📍 Maximum Distance from {userLocation.city}</Text>
+                <Text style={[styles.filterSectionTitle, { color: theme.colors.onSurface }]}>📍 Maximum Distance from {userLocation.city}</Text>
                 <View style={styles.chipContainer}>
                   {DISTANCE_OPTIONS.map((distance) => (
                     <Chip
@@ -423,8 +422,8 @@ export default function ExploreScreen({ navigation }: Props) {
 
             {!userLocation && (
               <>
-                <View style={styles.noLocationWarning}>
-                  <Text style={styles.noLocationText}>
+                <View style={[styles.noLocationWarning, { backgroundColor: theme.colors.errorContainer }]}>
+                  <Text style={[styles.noLocationText, { color: theme.colors.onErrorContainer }]}>
                     📍 Set your city in Profile to enable distance filtering!
                   </Text>
                   <Button 
@@ -434,7 +433,8 @@ export default function ExploreScreen({ navigation }: Props) {
                       navigation.getParent()?.navigate('Profile');
                     }}
                     compact
-                    style={styles.setLocationButton}
+                    style={[styles.setLocationButton, { borderColor: theme.colors.onErrorContainer }]}
+                    textColor={theme.colors.onErrorContainer}
                   >
                     Go to Profile
                   </Button>
@@ -444,7 +444,7 @@ export default function ExploreScreen({ navigation }: Props) {
             )}
 
             {/* City Filter */}
-            <Text style={styles.filterSectionTitle}>City</Text>
+            <Text style={[styles.filterSectionTitle, { color: theme.colors.onSurface }]}>City</Text>
             <View style={styles.chipContainer}>
               {CITIES.map((city) => (
                 <Chip
@@ -461,7 +461,7 @@ export default function ExploreScreen({ navigation }: Props) {
             <Divider style={styles.divider} />
 
             {/* Category Filter */}
-            <Text style={styles.filterSectionTitle}>Category</Text>
+            <Text style={[styles.filterSectionTitle, { color: theme.colors.onSurface }]}>Category</Text>
             <View style={styles.chipContainer}>
               {CATEGORIES.map((cat) => (
                 <Chip
@@ -478,7 +478,7 @@ export default function ExploreScreen({ navigation }: Props) {
             <Divider style={styles.divider} />
 
             {/* Rating Filter */}
-            <Text style={styles.filterSectionTitle}>Minimum Rating</Text>
+            <Text style={[styles.filterSectionTitle, { color: theme.colors.onSurface }]}>Minimum Rating</Text>
             <View style={styles.chipContainer}>
               {[4.0, 4.5, 4.8].map((rating) => (
                 <Chip
@@ -495,7 +495,7 @@ export default function ExploreScreen({ navigation }: Props) {
             <Divider style={styles.divider} />
 
             {/* Cuisine Filter */}
-            <Text style={styles.filterSectionTitle}>Cuisine</Text>
+            <Text style={[styles.filterSectionTitle, { color: theme.colors.onSurface }]}>Cuisine</Text>
             <View style={styles.chipContainer}>
               {CUISINES.map((cuisine) => (
                 <Chip
@@ -512,7 +512,7 @@ export default function ExploreScreen({ navigation }: Props) {
             <Divider style={styles.divider} />
 
             {/* Atmosphere Filter */}
-            <Text style={styles.filterSectionTitle}>Atmosphere</Text>
+            <Text style={[styles.filterSectionTitle, { color: theme.colors.onSurface }]}>Atmosphere</Text>
             <View style={styles.chipContainer}>
               {ATMOSPHERES.map((atm) => (
                 <Chip
@@ -529,7 +529,7 @@ export default function ExploreScreen({ navigation }: Props) {
             <Divider style={styles.divider} />
 
             {/* Features Filter */}
-            <Text style={styles.filterSectionTitle}>Features</Text>
+            <Text style={[styles.filterSectionTitle, { color: theme.colors.onSurface }]}>Features</Text>
             <View style={styles.chipContainer}>
               {FEATURES.map((feat) => (
                 <Chip
@@ -545,7 +545,7 @@ export default function ExploreScreen({ navigation }: Props) {
             </View>
           </ScrollView>
 
-          <View style={styles.modalFooter}>
+          <View style={[styles.modalFooter, { borderTopColor: theme.colors.outlineVariant, backgroundColor: theme.colors.background }]}>
             <Button mode="outlined" onPress={resetFilters} style={styles.footerButton}>
               Reset
             </Button>
@@ -560,13 +560,12 @@ export default function ExploreScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1 },
   headerContainer: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#fff',
     zIndex: 2,
     borderBottomLeftRadius: 16,
     borderBottomRightRadius: 16,
@@ -575,7 +574,7 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   searchContainer: { paddingHorizontal: 10, paddingBottom: 5 },
-  searchbar: { elevation: 0, backgroundColor: '#f0f0f0' },
+  searchbar: { elevation: 0 },
   toggleContainer: { paddingHorizontal: 10 },
   locationIndicator: {
     paddingHorizontal: 15,
@@ -583,7 +582,6 @@ const styles = StyleSheet.create({
   },
   locationIndicatorText: {
     fontSize: 12,
-    color: '#666',
   },
   locationBanner: {
     position: 'absolute',
@@ -595,13 +593,11 @@ const styles = StyleSheet.create({
   list: { padding: 10 },
   listHeader: {
     padding: 10,
-    backgroundColor: '#e3f2fd',
     borderRadius: 8,
     marginBottom: 10,
   },
   listHeaderText: {
     fontSize: 14,
-    color: '#1976d2',
   },
   card: { marginBottom: 10 },
   cardFooter: { 
@@ -615,16 +611,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
   },
-  cityText: { color: 'gray', fontSize: 12 },
+  cityText: { fontSize: 12 },
   distanceBadge: {
-    backgroundColor: '#e3f2fd',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
   },
   distanceText: {
     fontSize: 12,
-    color: '#1976d2',
     fontWeight: '500',
   },
   suggestionsContainer: {
@@ -632,7 +626,6 @@ const styles = StyleSheet.create({
     top: 110,
     left: 10,
     right: 10,
-    backgroundColor: 'white',
     borderRadius: 8,
     elevation: 20,
     maxHeight: 300,
@@ -644,7 +637,6 @@ const styles = StyleSheet.create({
   suggestionItem: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
   },
   suggestionContent: {
     flexDirection: 'row',
@@ -653,7 +645,6 @@ const styles = StyleSheet.create({
   },
   suggestionDistance: {
     fontSize: 12,
-    color: '#1976d2',
   },
   previewCard: {
     position: 'absolute',
@@ -662,7 +653,6 @@ const styles = StyleSheet.create({
     right: 10,
     elevation: 8,
     zIndex: 100,
-    backgroundColor: 'white',
   },
   previewContent: {
     flexDirection: 'row',
@@ -680,7 +670,6 @@ const styles = StyleSheet.create({
   },
   previewDistance: {
     fontSize: 12,
-    color: '#1976d2',
   },
   previewActions: {
     alignItems: 'center',
@@ -689,7 +678,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 10,
     zIndex: 200,
-    backgroundColor: 'white',
   },
   fabCollapsed: {
     top: 50,
@@ -702,11 +690,9 @@ const styles = StyleSheet.create({
     bottom: 20,
     right: 10,
     zIndex: 101,
-    backgroundColor: 'white',
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: 'white',
     paddingTop: 20,
   },
   modalHeader: {
@@ -715,7 +701,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
   },
   modalContent: {
     padding: 20,
@@ -742,26 +727,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: '#eee',
-    backgroundColor: 'white',
   },
   footerButton: {
     flex: 1,
     marginHorizontal: 5,
   },
   noLocationWarning: {
-    backgroundColor: '#fff3e0',
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
   },
   noLocationText: {
     fontSize: 14,
-    color: '#e65100',
     textAlign: 'center',
     marginBottom: 10,
   },
   setLocationButton: {
-    borderColor: '#e65100',
+    borderWidth: 1,
   },
 });

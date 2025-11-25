@@ -9,15 +9,15 @@ import venueMetadata from '../data/venue_metadata.json';
 import { supabase } from '../lib/supabase';
 import { UserLocation } from '../types';
 import { calculateDistance } from '../lib/distance';
+import { useTheme } from '../context/ThemeContext';
 
 export default function ChatScreen() {
+  const { theme } = useTheme();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const flatListRef = useRef<FlatList>(null);
-
-// ...
 
   // Fetch user location
   useFocusEffect(
@@ -126,13 +126,13 @@ export default function ChatScreen() {
         isUser ? styles.userMessageContainer : styles.aiMessageContainer
       ]}>
         {!isUser && (
-          <Avatar.Icon size={32} icon="robot" style={styles.avatar} />
+          <Avatar.Icon size={32} icon="robot" style={[styles.avatar, { backgroundColor: theme.colors.primary }]} />
         )}
         <View style={[
           styles.messageBubble,
-          isUser ? styles.userBubble : styles.aiBubble
+          isUser ? [styles.userBubble, { backgroundColor: theme.colors.primary }] : [styles.aiBubble, { backgroundColor: theme.colors.surface }]
         ]}>
-          <Text style={isUser ? styles.userText : styles.aiText}>
+          <Text style={isUser ? [styles.userText, { color: theme.colors.onPrimary }] : [styles.aiText, { color: theme.colors.onSurface }]}>
             {item.content}
           </Text>
         </View>
@@ -141,18 +141,18 @@ export default function ChatScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <Title>VibeBot 🤖</Title>
-        <Text style={styles.subtitle}>Ask me anything about our locations!</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]} edges={['top']}>
+      <View style={[styles.header, { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.outlineVariant }]}>
+        <Title style={{ color: theme.colors.onSurface }}>VibeBot 🤖</Title>
+        <Text style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>Ask me anything about our locations!</Text>
         {userLocation && (
-          <View style={styles.locationBadge}>
-            <Text style={styles.locationText}>📍 Your location: {userLocation.city}</Text>
+          <View style={[styles.locationBadge, { backgroundColor: theme.colors.secondaryContainer }]}>
+            <Text style={[styles.locationText, { color: theme.colors.onSecondaryContainer }]}>📍 Your location: {userLocation.city}</Text>
           </View>
         )}
         {!userLocation && (
-          <View style={styles.noLocationBadge}>
-            <Text style={styles.noLocationText}>Set your city in Profile for personalized recommendations!</Text>
+          <View style={[styles.noLocationBadge, { backgroundColor: theme.colors.errorContainer }]}>
+            <Text style={[styles.noLocationText, { color: theme.colors.onErrorContainer }]}>Set your city in Profile for personalized recommendations!</Text>
           </View>
         )}
       </View>
@@ -165,19 +165,19 @@ export default function ChatScreen() {
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Avatar.Icon size={64} icon="robot-excited" style={{ backgroundColor: '#e0e0e0' }} />
-            <Text style={styles.emptyText}>Hi! I'm VibeBot.</Text>
-            <Text style={styles.emptySubtext}>
+            <Avatar.Icon size={64} icon="robot-excited" style={{ backgroundColor: theme.colors.surfaceVariant }} />
+            <Text style={[styles.emptyText, { color: theme.colors.onSurface }]}>Hi! I'm VibeBot.</Text>
+            <Text style={[styles.emptySubtext, { color: theme.colors.onSurfaceVariant }]}>
               {userLocation 
                 ? `I see you're in ${userLocation.city}! Ask me for recommendations like "What's close to me?" or "Find a coffee shop nearby."`
                 : 'Ask me for recommendations like "Where can I find good coffee?" or "I need a quiet place to study."'}
             </Text>
             {userLocation && (
-              <View style={styles.suggestionChips}>
-                <Text style={styles.suggestionsTitle}>Try asking:</Text>
-                <Text style={styles.suggestionChip}>• "What's the closest café to me?"</Text>
-                <Text style={styles.suggestionChip}>• "Find restaurants within 50km"</Text>
-                <Text style={styles.suggestionChip}>• "Best rated places near {userLocation.city}"</Text>
+              <View style={[styles.suggestionChips, { backgroundColor: theme.colors.surfaceVariant }]}>
+                <Text style={[styles.suggestionsTitle, { color: theme.colors.onSurfaceVariant }]}>Try asking:</Text>
+                <Text style={[styles.suggestionChip, { color: theme.colors.onSurfaceVariant }]}>• "What's the closest café to me?"</Text>
+                <Text style={[styles.suggestionChip, { color: theme.colors.onSurfaceVariant }]}>• "Find restaurants within 50km"</Text>
+                <Text style={[styles.suggestionChip, { color: theme.colors.onSurfaceVariant }]}>• "Best rated places near {userLocation.city}"</Text>
               </View>
             )}
           </View>
@@ -186,8 +186,8 @@ export default function ChatScreen() {
 
       {isLoading && (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator animating={true} color="#6200ee" />
-          <Text style={styles.loadingText}>Thinking...</Text>
+          <ActivityIndicator animating={true} color={theme.colors.primary} />
+          <Text style={[styles.loadingText, { color: theme.colors.onSurfaceVariant }]}>Thinking...</Text>
         </View>
       )}
 
@@ -195,13 +195,14 @@ export default function ChatScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
       >
-        <View style={styles.inputContainer}>
+        <View style={[styles.inputContainer, { backgroundColor: theme.colors.surface, borderTopColor: theme.colors.outlineVariant }]}>
           <TextInput
             mode="outlined"
             value={inputText}
             onChangeText={setInputText}
             placeholder="Type a message..."
-            style={styles.input}
+            style={[styles.input, { backgroundColor: theme.colors.surface }]}
+            textColor={theme.colors.onSurface}
             right={<TextInput.Icon icon="send" onPress={handleSend} disabled={isLoading || !inputText.trim()} />}
             onSubmitEditing={handleSend}
           />
@@ -214,21 +215,16 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   header: {
     padding: 16,
-    backgroundColor: 'white',
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
     alignItems: 'center',
   },
   subtitle: {
-    color: 'gray',
     fontSize: 12,
   },
   locationBadge: {
-    backgroundColor: '#e3f2fd',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
@@ -236,11 +232,9 @@ const styles = StyleSheet.create({
   },
   locationText: {
     fontSize: 12,
-    color: '#1976d2',
     fontWeight: '500',
   },
   noLocationBadge: {
-    backgroundColor: '#fff3e0',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
@@ -248,7 +242,6 @@ const styles = StyleSheet.create({
   },
   noLocationText: {
     fontSize: 11,
-    color: '#e65100',
     textAlign: 'center',
   },
   listContent: {
@@ -267,7 +260,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   avatar: {
-    backgroundColor: '#6200ee',
     marginRight: 8,
   },
   messageBubble: {
@@ -277,27 +269,20 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   userBubble: {
-    backgroundColor: '#6200ee',
     borderBottomRightRadius: 4,
   },
   aiBubble: {
-    backgroundColor: 'white',
     borderBottomLeftRadius: 4,
   },
   userText: {
-    color: 'white',
   },
   aiText: {
-    color: '#333',
   },
   inputContainer: {
     padding: 10,
-    backgroundColor: 'white',
     borderTopWidth: 1,
-    borderTopColor: '#eee',
   },
   input: {
-    backgroundColor: 'white',
   },
   emptyState: {
     alignItems: 'center',
@@ -312,14 +297,12 @@ const styles = StyleSheet.create({
   },
   emptySubtext: {
     textAlign: 'center',
-    color: 'gray',
     marginTop: 8,
     paddingHorizontal: 20,
   },
   suggestionChips: {
     marginTop: 20,
     alignItems: 'flex-start',
-    backgroundColor: '#f5f5f5',
     padding: 16,
     borderRadius: 12,
     width: '100%',
@@ -327,10 +310,8 @@ const styles = StyleSheet.create({
   suggestionsTitle: {
     fontWeight: 'bold',
     marginBottom: 8,
-    color: '#333',
   },
   suggestionChip: {
-    color: '#666',
     marginVertical: 4,
     fontSize: 13,
   },
@@ -342,12 +323,11 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginLeft: 8,
-    color: 'gray',
     fontSize: 12,
   },
 });
 
 // Helper component for Title
-function Title({ children }: { children: React.ReactNode }) {
-  return <Text style={{ fontSize: 20, fontWeight: 'bold' }}>{children}</Text>;
+function Title({ children, style }: { children: React.ReactNode, style?: any }) {
+  return <Text style={[{ fontSize: 20, fontWeight: 'bold' }, style]}>{children}</Text>;
 }
