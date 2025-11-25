@@ -142,59 +142,60 @@ export default function ChatScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]} edges={['top']}>
-      <View style={[styles.header, { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.outlineVariant }]}>
-        <Title style={{ color: theme.colors.onSurface }}>VibeBot 🤖</Title>
-        <Text style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>Ask me anything about our locations!</Text>
-        {userLocation && (
-          <View style={[styles.locationBadge, { backgroundColor: theme.colors.secondaryContainer }]}>
-            <Text style={[styles.locationText, { color: theme.colors.onSecondaryContainer }]}>📍 Your location: {userLocation.city}</Text>
-          </View>
-        )}
-        {!userLocation && (
-          <View style={[styles.noLocationBadge, { backgroundColor: theme.colors.errorContainer }]}>
-            <Text style={[styles.noLocationText, { color: theme.colors.onErrorContainer }]}>Set your city in Profile for personalized recommendations!</Text>
-          </View>
-        )}
-      </View>
-
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        renderItem={renderMessage}
-        keyExtractor={(_, index) => index.toString()}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Avatar.Icon size={64} icon="robot-excited" style={{ backgroundColor: theme.colors.surfaceVariant }} />
-            <Text style={[styles.emptyText, { color: theme.colors.onSurface }]}>Hi! I'm VibeBot.</Text>
-            <Text style={[styles.emptySubtext, { color: theme.colors.onSurfaceVariant }]}>
-              {userLocation 
-                ? `I see you're in ${userLocation.city}! Ask me for recommendations like "What's close to me?" or "Find a coffee shop nearby."`
-                : 'Ask me for recommendations like "Where can I find good coffee?" or "I need a quiet place to study."'}
-            </Text>
-            {userLocation && (
-              <View style={[styles.suggestionChips, { backgroundColor: theme.colors.surfaceVariant }]}>
-                <Text style={[styles.suggestionsTitle, { color: theme.colors.onSurfaceVariant }]}>Try asking:</Text>
-                <Text style={[styles.suggestionChip, { color: theme.colors.onSurfaceVariant }]}>• "What's the closest café to me?"</Text>
-                <Text style={[styles.suggestionChip, { color: theme.colors.onSurfaceVariant }]}>• "Find restaurants within 50km"</Text>
-                <Text style={[styles.suggestionChip, { color: theme.colors.onSurfaceVariant }]}>• "Best rated places near {userLocation.city}"</Text>
-              </View>
-            )}
-          </View>
-        }
-      />
-
-      {isLoading && (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator animating={true} color={theme.colors.primary} />
-          <Text style={[styles.loadingText, { color: theme.colors.onSurfaceVariant }]}>Thinking...</Text>
-        </View>
-      )}
-
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+        style={{ flex: 1 }}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
       >
+        <View style={[styles.header, { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.outlineVariant }]}>
+          <Title style={{ color: theme.colors.onSurface }}>VibeBot 🤖</Title>
+          <Text style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>Ask me anything about our locations!</Text>
+          {userLocation && (
+            <View style={[styles.locationBadge, { backgroundColor: theme.colors.secondaryContainer }]}>
+              <Text style={[styles.locationText, { color: theme.colors.onSecondaryContainer }]}>📍 Your location: {userLocation.city}</Text>
+            </View>
+          )}
+          {!userLocation && (
+            <View style={[styles.noLocationBadge, { backgroundColor: theme.colors.errorContainer }]}>
+              <Text style={[styles.noLocationText, { color: theme.colors.onErrorContainer }]}>Set your city in Profile for personalized recommendations!</Text>
+            </View>
+          )}
+        </View>
+
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          renderItem={renderMessage}
+          keyExtractor={(_, index) => index.toString()}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              <Avatar.Icon size={64} icon="robot-excited" style={{ backgroundColor: theme.colors.surfaceVariant }} />
+              <Text style={[styles.emptyText, { color: theme.colors.onSurface }]}>Hi! I'm VibeBot.</Text>
+              <Text style={[styles.emptySubtext, { color: theme.colors.onSurfaceVariant }]}>
+                {userLocation 
+                  ? `I see you're in ${userLocation.city}! Ask me for recommendations like "What's close to me?" or "Find a coffee shop nearby."`
+                  : 'Ask me for recommendations like "Where can I find good coffee?" or "I need a quiet place to study."'}
+              </Text>
+              {userLocation && (
+                <View style={[styles.suggestionChips, { backgroundColor: theme.colors.surfaceVariant }]}>
+                  <Text style={[styles.suggestionsTitle, { color: theme.colors.onSurfaceVariant }]}>Try asking:</Text>
+                  <Text style={[styles.suggestionChip, { color: theme.colors.onSurfaceVariant }]}>• "What's the closest café to me?"</Text>
+                  <Text style={[styles.suggestionChip, { color: theme.colors.onSurfaceVariant }]}>• "Find restaurants within 50km"</Text>
+                  <Text style={[styles.suggestionChip, { color: theme.colors.onSurfaceVariant }]}>• "Best rated places near {userLocation.city}"</Text>
+                </View>
+              )}
+            </View>
+          }
+        />
+
+        {isLoading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator animating={true} color={theme.colors.primary} />
+            <Text style={[styles.loadingText, { color: theme.colors.onSurfaceVariant }]}>Thinking...</Text>
+          </View>
+        )}
+
         <View style={[styles.inputContainer, { backgroundColor: theme.colors.surface, borderTopColor: theme.colors.outlineVariant }]}>
           <TextInput
             mode="outlined"
