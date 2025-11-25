@@ -4,16 +4,19 @@
 
 ## Features 🚀
 
-- **🗺️ Interactive Explore Screen**: Switch seamlessly between Map and List views to discover venues.
+- **🗺️ Interactive Explore Screen**:
+  - Switch seamlessly between **Map** and **List** views.
+  - **New:** Robust Map implementation using Leaflet via WebView for maximum stability on Android.
 - **🔍 Advanced Filtering**: Filter venues by:
   - **City** (e.g., Cluj-Napoca, Bucharest)
   - **Category** (Café, Restaurant, Pub, etc.)
   - **Cuisine** & **Atmosphere**
   - **Special Features** (Terrace, Live Music, etc.)
   - **Distance** (Find places near you!)
+- **✨ Vibe Check**: Get an instant AI analysis of a venue's vibe based on its description and reviews.
 - **🤖 VibeBot (AI Chatbot)**: A smart assistant that gives personalized recommendations based on your location and preferences.
 - **📍 Location Awareness**: Set your city in your profile to see real-time distances to venues.
-- **👤 User Profiles**: Manage your account and location preferences.
+- **👤 User Profiles**: Manage your account, avatar, and location preferences.
 - **🔐 Secure Authentication**: Powered by Supabase.
 
 ## Tech Stack 🛠️
@@ -24,8 +27,8 @@
 - **Navigation**: [React Navigation](https://reactnavigation.org/)
 - **Backend & Auth**: [Supabase](https://supabase.com/)
 - **Maps**:
-  - Mobile: [React Native Maps](https://github.com/react-native-maps/react-native-maps) (using OpenStreetMap tiles)
-  - Web: [React Leaflet](https://react-leaflet.js.org/) (OpenStreetMap)
+  - **Mobile (Android/iOS)**: `react-native-webview` rendering Leaflet.js with OpenStreetMap tiles (Crash-proof implementation).
+  - **Web**: `react-leaflet` (OpenStreetMap).
 - **AI Integration**: [OpenRouter API](https://openrouter.ai/)
 
 ## Getting Started 🏁
@@ -64,6 +67,22 @@
    npx expo start
    ```
    Scan the QR code with the Expo Go app to run it on your phone.
+
+## Building for Android (APK) 🤖
+
+To build a standalone APK for testing:
+
+1. **Configure EAS**:
+   Ensure you have `eas-cli` installed and logged in.
+
+2. **Build Command**:
+
+   ```bash
+   npx eas-cli build -p android --profile preview
+   ```
+
+3. **Install**:
+   Download the APK from the Expo dashboard link provided after the build completes.
 
 ## Database Setup (Supabase) 🗄️
 
