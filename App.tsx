@@ -7,10 +7,13 @@ import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 // Disable react-native-screens to fix "addViewAt" crash on Android with Expo Go + New Arch
 enableScreens(false);
 
+import NetworkBanner from './src/components/NetworkBanner';
+
 function Main() {
   const { theme } = useTheme();
   return (
     <PaperProvider theme={theme}>
+      <NetworkBanner />
       <RootNavigator />
     </PaperProvider>
   );
