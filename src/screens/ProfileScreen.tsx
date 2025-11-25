@@ -69,11 +69,26 @@ export default function ProfileScreen() {
     setCityMenuVisible(false);
   };
 
+  const justCleared = React.useRef(false);
+
   const clearCity = () => {
     setCity('');
     setCityLat(null);
     setCityLong(null);
+    setCityMenuVisible(false);
+    justCleared.current = true;
+    setTimeout(() => {
+      justCleared.current = false;
+    }, 100);
   };
+
+  const openCityMenu = () => {
+    if (!justCleared.current) {
+      setCityMenuVisible(true);
+    }
+  };
+
+
 
   async function updateProfile() {
     try {
@@ -241,31 +256,33 @@ export default function ProfileScreen() {
           Set your city to see distances to venues and get personalized recommendations
         </Text>
         
-        <Menu
-          visible={cityMenuVisible}
-          onDismiss={() => setCityMenuVisible(false)}
-          anchor={
-            <TouchableOpacity onPress={() => setCityMenuVisible(true)}>
-              <TextInput
-                label="City"
-                value={city}
-                style={[styles.input, { backgroundColor: theme.colors.surface }]}
-                mode="outlined"
-                textColor={theme.colors.onSurface}
-                editable={false}
-                right={
-                  city ? (
-                    <TextInput.Icon icon="close" onPress={clearCity} />
-                  ) : (
-                    <TextInput.Icon icon="chevron-down" onPress={() => setCityMenuVisible(true)} />
-                  )
-                }
-                placeholder="Select your city..."
-              />
-            </TouchableOpacity>
-          }
-          contentStyle={[styles.menuContent, { backgroundColor: theme.colors.surface }]}
-        >
+
+
+          <Menu
+            visible={cityMenuVisible}
+            onDismiss={() => setCityMenuVisible(false)}
+            anchor={
+              <TouchableOpacity onPress={openCityMenu} disabled={!!city}>
+                <TextInput
+                  label="City"
+                  value={city}
+                  style={[styles.input, { backgroundColor: theme.colors.surface }]}
+                  mode="outlined"
+                  textColor={theme.colors.onSurface}
+                  editable={false}
+                  right={
+                    city ? (
+                      <TextInput.Icon icon="close" onPress={clearCity} />
+                    ) : (
+                      <TextInput.Icon icon="chevron-down" onPress={openCityMenu} />
+                    )
+                  }
+                  placeholder="Select your city..."
+                />
+              </TouchableOpacity>
+            }
+            contentStyle={[styles.menuContent, { backgroundColor: theme.colors.surface }]}
+          >
           <ScrollView style={styles.menuScroll}>
             {ROMANIAN_CITIES.map((cityItem) => (
               <Menu.Item
