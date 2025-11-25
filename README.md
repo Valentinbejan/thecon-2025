@@ -92,3 +92,8 @@ Make sure to run the migration scripts provided in the `supabase_*.sql` files to
 ## License 📄
 
 This project is licensed under the MIT License.
+
+## Video
+
+https://github.com/user-attachments/assets/0e4acbfe-c6c7-47c2-983e-572805243a3c
+
