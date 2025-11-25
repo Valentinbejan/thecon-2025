@@ -110,6 +110,21 @@ export default function DetailsScreen({ route }: Props) {
           >
             Share Location
           </Button>
+
+          <Button 
+            mode="contained" 
+            onPress={() => {
+              const phoneNumber = '40712345678'; // Replace with actual venue phone number if available
+              const message = `Hello, I would like to reserve a table at ${venue.name}.`;
+              const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+              Linking.openURL(url);
+            }} 
+            icon="whatsapp"
+            style={[styles.button, { backgroundColor: '#25D366' }]} 
+            textColor="white"
+          >
+            Rezervă
+          </Button>
         </View>
       </View>
     </ScrollView>
