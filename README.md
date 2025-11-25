@@ -10,8 +10,6 @@ Urmărește VibeScout în acțiune!
 
 [**Vizionează Demo Video**](https://github.com/user-attachments/assets/0e4acbfe-c6c7-47c2-983e-572805243a3c)
 
-_(Click pe link-ul de mai sus pentru a vedea prezentarea)_
-
 ---
 
 ## � Cuprins
