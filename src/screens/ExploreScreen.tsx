@@ -65,6 +65,8 @@ export default function ExploreScreen({ navigation }: Props) {
                 lat: data.city_lat,
                 long: data.city_long,
               });
+            } else if (isActive) {
+              setUserLocation(null);
             }
           }
         } catch (error) {

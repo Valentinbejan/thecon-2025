@@ -40,6 +40,8 @@ export default function ChatScreen() {
                 lat: data.city_lat,
                 long: data.city_long,
               });
+            } else if (isActive) {
+              setUserLocation(null);
             }
           }
         } catch (error) {
